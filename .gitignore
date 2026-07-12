@@ -1,0 +1,27 @@
+# Godot editor and import cache
+.godot/
+.import/
+
+# Local exports and platform artifacts
+export/
+build/
+*.pck
+*.exe
+*.apk
+*.ipa
+*.dmg
+*.zip
+*.7z
+
+# Mono and local runtime files
+.mono/
+data_*/
+mono_crash.*.json
+*.tmp
+*.translation
+.omx/
+
+# Local environment files
+.env
+.env.*
+!.env.example
