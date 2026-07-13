@@ -19,13 +19,14 @@ config/tags=PackedStringArray("模板")
 
 [autoload]
 
-DialogueManager="*res://Dialogue/Runtime/project_dialogue_manager.gd"
+DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
-SaveSystem="*res://Scripts/Save/save_system.gd"
+SaveSystem="*res://addons/enhance_save_system/core/save_system.gd"
 SceneManager="*res://addons/scene_manager/autoload/scene_manager.tscn"
 GuiTransitions="*res://addons/simple-gui-transitions/singleton.gd"
 SoundManager="*res://addons/sound_manager/sound_manager.gd"
 GameAudio="*res://Scenes/Autoload/game_audio.gd"
+FeedbackOverlay="*res://Scenes/UI/Common/feedback_overlay.tscn"
 
 [display]
 
