@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://Scenes/UI/Menu/menu.gd" id="1_menu"]
 [ext_resource type="Shader" path="res://resources/shader/god_ray.gdshader" id="2_godray"]
 [ext_resource type="PackedScene" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="3_button"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Menu/setting_screen.tscn" id="4_settings"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Menu/thank_screen.tscn" id="5_thanks"]
+[ext_resource type="Theme" uid="uid://136hg33mma1d" path="res://resources/main_theme.tres" id="6_theme"]
 
 [sub_resource type="Gradient" id="Gradient_background"]
 offsets = PackedFloat32Array(0, 0.58, 1)
@@ -42,6 +43,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("6_theme")
 script = ExtResource("1_menu")
 
 [node name="Background" type="TextureRect" parent="."]
@@ -172,18 +174,6 @@ theme_override_colors/font_color = Color(0.9, 0.84, 0.68, 0.88)
 theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="BootFlash" type="ColorRect" parent="ButtonLayer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(1, 1, 1, 1)
 
 [node name="SettingScreen" parent="." instance=ExtResource("4_settings")]
 unique_name_in_owner = true

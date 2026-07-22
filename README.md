@@ -1,97 +1,130 @@
 # Game Jam Template
 
-Godot 4.7 GDScript-only UI template extracted from the current project.
+Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, settings, credits, pause UI, input rebinding, save modules, audio routing, feedback overlays, and scene transitions without prescribing gameplay.
 
-## Included
+## Quick Start
+
+1. Open the repository with Godot 4.7 and let imports finish.
+2. Open `Scenes/UI/Menu/menu.tscn`.
+3. Select the root `Menu` and set `start_scene_path` to the first gameplay scene.
+4. Select `KeybindingUI` in `Scenes/UI/Menu/setting_screen.tscn` and edit its authored `action_allowlist` and `label_map` for your game's controls.
+5. Run the menu and verify Start, Settings, Credits, keyboard/gamepad focus, and Pause before adding gameplay.
+
+The template intentionally has no gameplay scene. Start stays disabled until `start_scene_path` points to a valid packed scene.
+
+## Included Systems
 
 - Main menu: `Scenes/UI/Menu/menu.tscn`
-- Settings modal: display, audio, accessibility, and key rebinding
-- Credits modal: same glass/scan-line style as settings
-- Pause modal: reusable full-screen glass panel
-- UI components: `ShaderButton`, `ButtonEffectModule`, `floating_text`
-- Autoload audio router: `Scenes/Autoload/game_audio.gd`
-- Audio buses: `Master`, `SFX`, `Music`, `Ambient`, `UI`
-- Plugins: Dialogue Manager 3.10.4, RicherTextLabel 1.14, Enhanced Save System 2.0.0, SceneManager, Simple GUI Transitions, SoundManager, Phantom Camera
-- Common shaders and transitions under `resources/`
+- Settings and key rebinding: `Scenes/UI/Menu/setting_screen.tscn`
+- Credits: `Scenes/UI/Menu/thank_screen.tscn`
+- Pause UI: `Scenes/UI/PauseScreen/pause_screen.tscn`
+- UI components: `ShaderButton`, `ButtonEffectModule`, and `floating_text`
+- Audio router: `Scenes/Autoload/game_audio.gd`
+- Feedback overlay: `Scenes/UI/Common/feedback_overlay.tscn`
+- Scene transitions: `resources/scene_transitions/`
+- Dialogue and project save modules: `Dialogue/`, `Scripts/Save/`, and `Config/save_modules.cfg`
 
-## Start Scene
+Third-party plugins remain under `addons/`. Each plugin keeps its own license.
 
-Open `Scenes/UI/Menu/menu.tscn`, select the root `Menu`, and set `start_scene_path` in the Inspector.
+## Reskin Checklist
 
-The template does not include a gameplay scene. Until `start_scene_path` is set, the Start button is disabled and the menu shows a short hint.
+- Replace project-wide colors, fonts, and control styles in `resources/main_theme.tres` and `resources/settings_theme.tres`.
+- Choose the global UI font in `assets/fonts/ui_font.tres`: keep `ui_hd_font.tres` for normal games or set its base font to `ui_pixel_font.tres` for pixel games. Pixel layouts should use 10 px font-size multiples and integer viewport scaling.
+- Restyle `ShaderButton` through its scene, material, and external shader together; its hover and focus outline is shared by mouse, keyboard, and gamepad navigation.
+- Edit the authored menu, settings, credits, and pause scenes for layout or copy changes. Keep their named nodes and script contracts intact.
+- Assign menu music to `Menu.menu_music`, replace the UI audio streams consumed by `GameAudio`, and keep the existing `Master`, `SFX`, `Music`, `Ambient`, and `UI` buses.
+- Replace the fade resources in `resources/scene_transitions/` if the game needs a different scene-change style.
+- Change `config/name`, icons, boot splash, and export metadata before publishing.
 
-## Audio
+## Settings And Platform Behavior
 
-UI confirm and cancel sounds are already wired through `GameAudio`.
+Display, volume, accessibility, and input settings apply immediately. `SettingsModule` persists global settings, while Enhanced Save System serializes input bindings.
 
-To add menu music, assign an `AudioStream` to `Menu.menu_music` or call:
+| Behavior | Windows | Web |
+| --- | --- | --- |
+| Exit command | Shown | Hidden |
+| Resolution selector | Shown and persisted | Hidden |
+| VSync | Shown and persisted | Hidden |
+| Fullscreen | Native setting, persisted | Browser button, only changed by a user click and not persisted |
+
+The Web restrictions are intentional: browser fullscreen requires user activation, and browser/window ownership makes desktop resolution and VSync controls misleading.
+
+The default keybinding list contains `left`, `right`, `up`, `down`, `attack`, `sprint`, and `pause`. The reset command on the keybinding page changes bindings only; the general reset command changes display, sound, and accessibility settings only.
+
+## Audio, Feedback, And Transitions
+
+Play menu music through the authored property or the audio router:
 
 ```gdscript
 GameAudio.play_music("menu", your_stream)
 ```
 
-Settings sliders write through `SettingsModule` and immediately update Godot audio buses.
-
-## Settings
-
-The settings modal has two pages:
-
-- `通用设置`: fullscreen, `1280x720`, `1600x900`, `1920x1080`, VSync, master/music/SFX/UI/ambient volumes, and screen shake.
-- `按键设置`: the common input actions below. Its reset button only resets bindings.
-
-`恢复默认` on `通用设置` restores only display, sound, and accessibility values. Every setting is applied immediately and saved globally.
-
-The keybinding page shows these common actions by default:
-
-- `left`, `right`, `up`, `down`
-- `attack`
-- `sprint`
-- `pause`
-
-Edit `SettingScreen.GAMEPLAY_ACTIONS` and `GAMEPLAY_ACTION_LABELS` if your game needs a different input set.
-
-## Dialogue And Saves
-
-- Official third-party code stays under `addons/` without local patches.
-- Project-owned dialogue runtime, effects, save modules, and reusable balloon examples live under `Dialogue/`.
-- Use `Dialogue/Examples/modular_balloon.tscn` as the starting point for portraits, history, typing sound, and modular dialogue UI.
-- Enhanced Save System registers `SaveSystem` automatically. Its core loads `Config/save_modules.cfg`; project modules live in `Scripts/Save/Modules/` and dialogue progress modules live in `Dialogue/SaveModules/`.
-- Upgrade an addon by replacing its directory under `addons/`; preserve `Dialogue/`, `Scripts/Save/`, and `Config/save_modules.cfg`.
-
-## Feedback Overlay
-
-`FeedbackOverlay` is a project autoload with one top-right toast and one authored confirmation panel. It intentionally does not queue messages or use layout strings.
+Use the global feedback overlay for short notices and confirmations:
 
 ```gdscript
-FeedbackOverlay.toast(2.0, "已保存", "进度已写入存档。")
-await FeedbackOverlay.popup_confirm("提示", "继续后将进入下一段剧情。")
+FeedbackOverlay.toast(2.0, "Saved", "Progress written to disk.")
 
-if await FeedbackOverlay.ask("退出游戏", "确定要退出吗？", "退出", "取消"):
+if await FeedbackOverlay.ask("Quit", "Leave the current run?", "Quit", "Cancel"):
 	get_tree().quit()
 ```
 
-Dialogue Manager can call the same methods directly, for example `do! FeedbackOverlay.toast(2.0, "提示", "内容已更新。")`.
-
-## Scene Transitions
-
-Use the included SceneManager fades for scene changes. Start the exit fade, wait for it, change scene, then start the enter fade from the next scene's `_ready`.
+Use the bundled SceneManager fade resources for scene changes:
 
 ```gdscript
 const EXIT_FADE := preload("res://resources/scene_transitions/stage_exit_fade_to_black.tres")
-const ENTER_FADE := preload("res://resources/scene_transitions/stage_enter_fade_to_black.tres")
 
 func leave_scene() -> void:
 	var tween := SceneManager.transition_start(EXIT_FADE)
 	if tween:
 		await tween.finished
 	SceneManager.change_scene_to_file("res://Scenes/Game/game.tscn")
-
-func _ready() -> void:
-	SceneManager.transition_start(ENTER_FADE, true)
 ```
 
-## Notes
+## Export
 
-- This template intentionally excludes the original gameplay, growth screen, combat assets, C# project files, and project-specific music.
-- `resources/` is normalized from the source project's old `reousrces/` folder name.
-- Each third-party addon retains its own license. The root MIT license applies to this template's project-owned files.
+Install the official Godot 4.7 export templates first. Web export must use the standard non-.NET Godot 4.7 editor; Godot's Mono/.NET editor cannot export Web projects. The committed presets target Web without threads or extension support and Windows Desktop:
+
+```powershell
+New-Item -ItemType Directory -Force build/web, build/windows | Out-Null
+$godotStandard = "C:/Tools/Godot_v4.7-stable_win64_console.exe"
+& $godotStandard --headless --path . --export-release "Web" "build/web/index.html"
+& $godotStandard --headless --path . --export-release "Windows Desktop" "build/windows/GameJamTemplate.exe"
+```
+
+All presets keep `all_resources` for dynamic `preload()`, autoload, and `class_name` dependencies, while excluding addon editor UI and bundled examples that are not needed at runtime.
+
+### Optional Smaller Windows Export
+
+Most of the default Windows package is Godot's general-purpose runtime rather than project data. The `Windows Desktop Small` preset uses a locally compiled Godot 4.7 release template with `size_extra`, full LTO, GL Compatibility only, and unused networking/video modules disabled. It does not use ZIP, UPX, or another post-build compressor, and it keeps 2D/3D nodes, Advanced GUI, advanced text shaping, Brotli/WOFF2 fonts, Jolt, `RegEx`, noise, and `mbedtls` for the bundled systems.
+
+Install SCons and Visual Studio Build Tools with the C++ workload, check out the exact `4.7-stable` Godot source, then run:
+
+```powershell
+pwsh ./tools/build_small_windows_template.ps1 -GodotSource C:/src/godot-4.7-stable
+godot --headless --path . --export-release "Windows Desktop Small" "build/windows-small/GameJamTemplate.exe"
+```
+
+The script writes `custom_templates/windows_release.exe`, which is intentionally ignored by Git. The preset embeds the PCK into one executable. Keep using the standard Windows preset when a game needs Vulkan, D3D12, XR, multiplayer, WebRTC/WebSocket, UPnP, Theora video, or another module disabled in `build_profiles/windows_small.gdbuild`. Treat the profile as hand-authored JSON; resaving it through Godot's build-profile editor can drop module keys that the editor UI does not expose.
+
+See Godot's [optimizing for size](https://docs.godotengine.org/en/4.7/engine_details/development/compiling/optimizing_for_size.html) guide for the engine-level tradeoffs.
+
+Replace `godot` with the local Godot 4.7 executable name when it is not on `PATH`. Serve the Web build over HTTP rather than opening `index.html` directly:
+
+```powershell
+python -m http.server 8000 --directory build/web
+```
+
+Then open `http://127.0.0.1:8000/`.
+
+## Local Addon Patches
+
+This template deliberately patches two bundled addons:
+
+- **Enhanced Save System 2.0.0:** complete keyboard, mouse, and joypad event serialization; legacy wildcard-device fallback; stable in-place rebinding; and exact, device-aware conflict detection.
+- **SceneManager 2.0:** modal backdrops close from their current open progress, so closing during the opening animation neither jumps to fully open nor uses the wrong duration.
+
+Replacing either addon directory during an upgrade will remove these patches. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.
+
+## License
+
+The root MIT license covers project-owned template files. Third-party addon licenses continue to apply to their respective directories.

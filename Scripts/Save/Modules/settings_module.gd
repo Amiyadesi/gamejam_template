@@ -249,6 +249,8 @@ func _apply_ambient_volume(volume_between_0_and_1: float) -> void:
 
 # Applies fullscreen/windowed/borderless size and position to the root window.
 func _apply_display_mode() -> void:
+	if OS.has_feature("web"):
+		return
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree == null or tree.root == null:
 		return
@@ -282,6 +284,8 @@ func _apply_display_mode() -> void:
 
 # Applies vertical sync mode through DisplayServer.
 func _apply_vsync(enabled: bool) -> void:
+	if OS.has_feature("web"):
+		return
 	DisplayServer.window_set_vsync_mode(
 		DisplayServer.VSYNC_ENABLED if enabled else DisplayServer.VSYNC_DISABLED
 	)

@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c8eisrp4kcf52" path="res://Scenes/UI/Menu/setting_ambient_vfx.tscn" id="3_ambient"]
 [ext_resource type="PackedScene" uid="uid://uacp5p6j6svs" path="res://Scenes/UI/Menu/setting_local_light_vfx.tscn" id="4_light"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="6_4xm8e"]
+[ext_resource type="Theme" path="res://resources/settings_theme.tres" id="7_theme"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ajee"]
 shader = ExtResource("2_cob4t")
@@ -29,6 +30,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = ExtResource("7_theme")
 script = ExtResource("1_g8frt")
 color = Color(0, 0, 0, 0.68)
 close_modal_on_clicked = false
@@ -110,6 +112,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
+toggle_mode = true
 theme_override_font_sizes/font_size = 25
 text = "通用设置"
 
@@ -118,6 +121,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
 size_flags_horizontal = 3
+toggle_mode = true
 theme_override_font_sizes/font_size = 25
 text = "按键设置"
 
@@ -215,6 +219,36 @@ size_flags_horizontal = 3
 text = "开启"
 
 [node name="Underline" type="ColorRect" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/VSyncRow" unique_id=1434535820]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.5, 0.43, 0.24, 0.9)
+
+[node name="WebFullscreenRow" type="VBoxContainer" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RowContent" type="HBoxContainer" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="Title" type="Label" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow/RowContent"]
+custom_minimum_size = Vector2(210, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9, 0.9, 0.92, 1)
+text = "浏览器显示"
+vertical_alignment = 1
+
+[node name="WebFullscreenButton" type="Button" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow/RowContent"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "进入全屏"
+
+[node name="Underline" type="ColorRect" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow"]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
 color = Color(0.5, 0.43, 0.24, 0.9)
@@ -458,10 +492,8 @@ size_flags_vertical = 10
 
 [node name="ResetAudioButton" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/Footer" unique_id=1045943778 instance=ExtResource("6_4xm8e")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(170, 70)
+custom_minimum_size = Vector2(170, 56)
 layout_mode = 2
-offset_transform_enabled = true
-offset_transform_scale = Vector2(0.85, 0.8)
 theme_override_font_sizes/font_size = 30
 text = "恢复默认"
 
@@ -500,6 +532,7 @@ label_map = {
 "sprint": "奔跑",
 "up": "向上"
 }
+action_allowlist = PackedStringArray("left", "right", "up", "down", "attack", "sprint", "pause")
 
 [node name="HintLabel" type="Label" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox" unique_id=1883273207]
 unique_name_in_owner = true
@@ -527,7 +560,7 @@ offset_bottom = -26.0
 grow_horizontal = 1
 grow_vertical = 0
 theme_override_font_sizes/font_size = 30
-text = "退出"
+text = "返回"
 
 [node name="ThanksButton" parent="PanelRoot" unique_id=362932258 instance=ExtResource("6_4xm8e")]
 unique_name_in_owner = true

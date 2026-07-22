@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://dl7b3wmwdq67u"]
+[gd_scene load_steps=9 format=3 uid="uid://dl7b3wmwdq67u"]
 
 [ext_resource type="Script" uid="uid://ba1jtevurhfn7" path="res://Scenes/UI/PauseScreen/pause_screen.gd" id="1_pause"]
 [ext_resource type="Shader" uid="uid://dtcjm8c7boghc" path="res://resources/shader/blur.gdshader" id="2_blur"]
 [ext_resource type="PackedScene" uid="uid://c8eisrp4kcf52" path="res://Scenes/UI/Menu/setting_ambient_vfx.tscn" id="3_ambient"]
 [ext_resource type="PackedScene" uid="uid://uacp5p6j6svs" path="res://Scenes/UI/Menu/setting_local_light_vfx.tscn" id="4_light"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="5_button"]
+[ext_resource type="Theme" uid="uid://136hg33mma1d" path="res://resources/main_theme.tres" id="6_theme"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pause_blur"]
 shader = ExtResource("2_blur")
@@ -26,6 +27,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("6_theme")
 script = ExtResource("1_pause")
 color = Color(0, 0, 0, 0.68)
 close_modal_on_clicked = false
