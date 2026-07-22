@@ -1,6 +1,8 @@
 extends SceneTree
 
 const TEST_CONTEXT := preload("res://tests/support/test_context.gd")
+const INPUT_REGRESSIONS := preload("res://tests/input_regressions.gd")
+const MODAL_REGRESSIONS := preload("res://tests/modal_regressions.gd")
 
 var _context := TEST_CONTEXT.new()
 
@@ -13,6 +15,8 @@ func _initialize() -> void:
 # Runs all registered regressions and exits with a CI-friendly status code.
 func _run() -> void:
 	_test_harness_reports_success()
+	INPUT_REGRESSIONS.new().run(_context)
+	await MODAL_REGRESSIONS.new().run(_context, self)
 	print("Regression tests: %d assertions, %d failures" % [_context.assertions, _context.failures])
 	quit(1 if _context.failures > 0 else 0)
 

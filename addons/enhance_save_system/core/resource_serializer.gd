@@ -194,29 +194,36 @@ static func event_to_display_string(event: InputEvent) -> String:
 static func _serialize_key_event(event: InputEventKey) -> Dictionary:
 	return {
 		"event_type"  : "key",
+		"device"      : event.device,
 		"keycode"     : event.keycode,
 		"physical"    : event.physical_keycode,
 		"key_label"   : event.key_label,
+		"location"    : event.location,
 		"ctrl"        : event.ctrl_pressed,
 		"shift"       : event.shift_pressed,
 		"alt"         : event.alt_pressed,
 		"meta"        : event.meta_pressed,
+		"command_or_control_autoremap": event.command_or_control_autoremap,
 	}
 
 ## Serializes mouse-button events including keyboard modifiers.
 static func _serialize_mouse_button_event(event: InputEventMouseButton) -> Dictionary:
 	return {
 		"event_type"  : "mouse_button",
+		"device"      : event.device,
 		"button_index": event.button_index,
 		"ctrl"        : event.ctrl_pressed,
 		"shift"       : event.shift_pressed,
 		"alt"         : event.alt_pressed,
+		"meta"        : event.meta_pressed,
+		"command_or_control_autoremap": event.command_or_control_autoremap,
 	}
 
 ## Serializes joypad button events.
 static func _serialize_joypad_button_event(event: InputEventJoypadButton) -> Dictionary:
 	return {
 		"event_type"   : "joypad_button",
+		"device"       : event.device,
 		"button_index" : event.button_index,
 	}
 
@@ -224,6 +231,7 @@ static func _serialize_joypad_button_event(event: InputEventJoypadButton) -> Dic
 static func _serialize_joypad_motion_event(event: InputEventJoypadMotion) -> Dictionary:
 	return {
 		"event_type"   : "joypad_motion",
+		"device"       : event.device,
 		"axis"         : event.axis,
 		"axis_value"   : event.axis_value,
 	}
@@ -231,33 +239,45 @@ static func _serialize_joypad_motion_event(event: InputEventJoypadMotion) -> Dic
 ## Restores keyboard events from JSON-safe event data.
 static func _deserialize_key_event(data: Dictionary) -> InputEventKey:
 	var ev := InputEventKey.new()
+	ev.device           = int(data.get("device", InputEvent.DEVICE_ID_EMULATION))
 	ev.keycode          = int(data.get("keycode",    0))
 	ev.physical_keycode = int(data.get("physical",   0))
 	ev.key_label        = int(data.get("key_label",  0))
+	ev.location         = int(data.get("location",   0))
 	ev.ctrl_pressed     = bool(data.get("ctrl",      false))
 	ev.shift_pressed    = bool(data.get("shift",     false))
 	ev.alt_pressed      = bool(data.get("alt",       false))
 	ev.meta_pressed     = bool(data.get("meta",      false))
+	ev.command_or_control_autoremap = bool(
+		data.get("command_or_control_autoremap", false)
+	)
 	return ev
 
 ## Restores mouse-button events from JSON-safe event data.
 static func _deserialize_mouse_button_event(data: Dictionary) -> InputEventMouseButton:
 	var ev := InputEventMouseButton.new()
+	ev.device        = int(data.get("device", InputEvent.DEVICE_ID_EMULATION))
 	ev.button_index  = int(data.get("button_index", 0))
 	ev.ctrl_pressed  = bool(data.get("ctrl",  false))
 	ev.shift_pressed = bool(data.get("shift", false))
 	ev.alt_pressed   = bool(data.get("alt",   false))
+	ev.meta_pressed  = bool(data.get("meta",  false))
+	ev.command_or_control_autoremap = bool(
+		data.get("command_or_control_autoremap", false)
+	)
 	return ev
 
 ## Restores joypad button events from JSON-safe event data.
 static func _deserialize_joypad_button_event(data: Dictionary) -> InputEventJoypadButton:
 	var ev := InputEventJoypadButton.new()
+	ev.device = int(data.get("device", InputEvent.DEVICE_ID_EMULATION))
 	ev.button_index = int(data.get("button_index", 0))
 	return ev
 
 ## Restores joypad axis motion events from JSON-safe event data.
 static func _deserialize_joypad_motion_event(data: Dictionary) -> InputEventJoypadMotion:
 	var ev := InputEventJoypadMotion.new()
+	ev.device     = int(data.get("device", InputEvent.DEVICE_ID_EMULATION))
 	ev.axis       = int(data.get("axis", 0))
 	ev.axis_value = float(data.get("axis_value", 0.0))
 	return ev

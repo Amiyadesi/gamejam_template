@@ -93,8 +93,8 @@ func rebind_action_event(action: String, index: int, new_event: InputEvent) -> v
 	var events := InputMap.action_get_events(action)
 	if not _is_valid_event_index(index, events.size(), "index %d out of range" % index):
 		return
-	InputMap.action_erase_event(action, events[index])
-	InputMap.action_add_event(action, new_event)
+	events[index] = new_event
+	_replace_action_events(action, events)
 	_emit_bindings_changed()
 
 ## 添加新的按键绑定
@@ -146,11 +146,12 @@ func check_conflict(new_event: InputEvent) -> Array:
 func rebind_action_primary(action: String, new_event: InputEvent) -> void:
 	if not _require_action(action):
 		return
-	# 移除旧的第一个事件，插入新事件
 	var events := InputMap.action_get_events(action)
-	if events.size() > 0:
-		InputMap.action_erase_event(action, events[0])
-	InputMap.action_add_event(action, new_event)
+	if events.is_empty():
+		events.append(new_event)
+	else:
+		events[0] = new_event
+	_replace_action_events(action, events)
 	_emit_bindings_changed()
 
 ## 获取动作的所有绑定事件
@@ -163,17 +164,15 @@ func get_action_events(action: String) -> Array[InputEvent]:
 # 内部辅助
 # ──────────────────────────────────────────────
 
-## 比较两个输入事件是否相等
+# Matches exact input details, then applies wildcard-aware device overlap.
 func _events_equal(a: InputEvent, b: InputEvent) -> bool:
-	if a is InputEventKey and b is InputEventKey:
-		return a.keycode == b.keycode
-	elif a is InputEventMouseButton and b is InputEventMouseButton:
-		return a.button_index == b.button_index
-	elif a is InputEventJoypadButton and b is InputEventJoypadButton:
-		return a.button_index == b.button_index
-	elif a is InputEventJoypadMotion and b is InputEventJoypadMotion:
-		return a.axis == b.axis and a.axis_value == b.axis_value
-	return false
+	if not a.is_match(b, true):
+		return false
+	return (
+		a.device == b.device
+		or a.device == InputEvent.DEVICE_ID_EMULATION
+		or b.device == InputEvent.DEVICE_ID_EMULATION
+	)
 
 ## 重置全部绑定到默认值
 func reset_to_defaults() -> void:
