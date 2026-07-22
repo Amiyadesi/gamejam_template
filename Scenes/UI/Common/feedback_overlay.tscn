@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scenes/UI/Common/feedback_overlay.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="2_button"]
 [ext_resource type="Script" path="res://addons/scene_manager/scene/backdrop.gd" id="3_backdrop"]
+[ext_resource type="Theme" path="res://resources/settings_theme.tres" id="4_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxToast"]
 bg_color = Color(0.035, 0.03, 0.03, 0.94)
@@ -49,6 +50,7 @@ offset_top = 34.0
 offset_right = -20.0
 offset_bottom = 250.0
 grow_horizontal = 0
+theme = ExtResource("4_theme")
 theme_override_constants/margin_left = 0
 
 [node name="ToastPanel" type="PanelContainer" parent="ToastMargin"]
@@ -85,6 +87,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_theme")
 script = ExtResource("3_backdrop")
 color = Color(0, 0, 0, 0.68)
 close_modal_on_clicked = false

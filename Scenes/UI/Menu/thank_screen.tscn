@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://c8eisrp4kcf52" path="res://Scenes/UI/Menu/setting_ambient_vfx.tscn" id="3_ambient"]
 [ext_resource type="PackedScene" uid="uid://uacp5p6j6svs" path="res://Scenes/UI/Menu/setting_local_light_vfx.tscn" id="4_light"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="5_button"]
+[ext_resource type="Theme" path="res://resources/settings_theme.tres" id="6_theme"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_thanks_blur"]
 shader = ExtResource("2_blur")
@@ -31,6 +32,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("6_theme")
 script = ExtResource("1_thanks")
 color = Color(0, 0, 0, 0.68)
 close_modal_on_clicked = false
@@ -129,6 +131,7 @@ text = "感谢参与这个项目。"
 horizontal_alignment = 1
 
 [node name="CreditsText" type="RichTextLabel" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Body"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -139,10 +142,10 @@ text = "[b]制作[/b]
 Your Team
 
 [b]工具[/b]
-Godot Engine
+[url=https://godotengine.org]Godot Engine[/url]
 
 [b]Template[/b]
-这个页面保留了设置页同款玻璃、扫描线和局部光风格。你可以直接替换这里的名单、鸣谢和授权信息。"
+请替换这里的制作名单、第三方工具、素材来源和授权信息。"
 fit_content = true
 scroll_active = false
 
