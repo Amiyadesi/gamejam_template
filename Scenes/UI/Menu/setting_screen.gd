@@ -37,6 +37,8 @@ const GENERAL_HINTS := {
 
 var is_in_menu_flag := false
 
+var game_audio: Node
+var save_system: Node
 @onready var return_button: Button = %ReturnButton
 @onready var general_tab: Button = %AudioTab
 @onready var controls_tab: Button = %ControlsTab
@@ -84,6 +86,9 @@ func _ready() -> void:
 	super._ready()
 	if Engine.is_editor_hint():
 		return
+	# 只在游戏运行时绑定必需 autoload，避免 @tool 编辑器预览访问运行时树。
+	game_audio = get_tree().root.get_node("GameAudio")
+	save_system = get_tree().root.get_node("SaveSystem")
 	_configure_platform_controls()
 	_configure_display_options()
 	_register_general_rows()
@@ -98,7 +103,7 @@ func _input(event: InputEvent) -> void:
 	if not visible or not event.is_action_pressed("ui_cancel"):
 		return
 	get_viewport().set_input_as_handled()
-	_on_return_pressed()
+	request_return()
 
 
 # Refreshes every visible control from persisted global settings.
@@ -125,6 +130,11 @@ func select_tab(index: int) -> void:
 	_set_tab(index)
 
 
+# 统一处理按钮、Esc 与玩法 shell 发起的返回。
+func request_return() -> void:
+	_on_return_pressed()
+
+
 # Reopens the original settings page and returns focus to the credits command.
 func reopen_after_credits(index: int) -> void:
 	_focus_thanks_on_open = true
@@ -132,9 +142,9 @@ func reopen_after_credits(index: int) -> void:
 	open_modal()
 
 
-# Connects authored controls once for live settings changes.
+# 连接 authored 控件，并统一所有设置页返回入口。
 func _connect_signals() -> void:
-	return_button.pressed.connect(_on_return_pressed)
+	return_button.pressed.connect(request_return)
 	thanks_button.pressed.connect(_on_thanks_pressed)
 	reset_general_button.pressed.connect(_on_reset_general_pressed)
 	general_tab.pressed.connect(_set_tab.bind(0))
@@ -149,7 +159,7 @@ func _connect_signals() -> void:
 	web_fullscreen_row.mouse_entered.connect(_set_hint.bind(GENERAL_HINTS["web_fullscreen"]))
 	web_fullscreen_button.focus_entered.connect(_set_hint.bind(GENERAL_HINTS["web_fullscreen"]))
 	visibility_changed.connect(_on_visibility_changed)
-	close_modal_requested.connect(_on_return_pressed)
+	close_modal_requested.connect(request_return)
 	for item in _setting_rows:
 		var key := String(item["key"])
 		var row := item["row"] as Control
@@ -227,13 +237,13 @@ func _set_tab(index: int) -> void:
 		call_deferred("_restore_focus")
 
 
-# Stores one slider value and immediately updates runtime audio services.
+# 保存滑杆值，并立即刷新运行时音频。
 func _on_general_slider_changed(value: float, key: String, value_label: Label) -> void:
 	_update_value_label(value_label, value)
 	if _ignore_ui_changes:
 		return
 	SettingsModule.instance.set_value(key, value)
-	GameAudio.refresh_runtime_volumes()
+	game_audio.call("refresh_runtime_volumes")
 
 
 # Applies the selected fullscreen or fixed desktop window preset.
@@ -269,22 +279,21 @@ func _on_web_fullscreen_pressed() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 
-# Restores only general display, sound, and accessibility fields.
+# 只恢复显示、声音与辅助设置。
 func _on_reset_general_pressed() -> void:
 	for key in GENERAL_KEYS:
 		SettingsModule.instance.set_value(key, GENERAL_DEFAULTS[key])
-	GameAudio.refresh_runtime_volumes()
+	game_audio.call("refresh_runtime_volumes")
 	refresh_from_settings()
 	_set_hint("通用设置已恢复默认。")
 
 
-# Closes the modal, flushes settings, and reports the focus handoff to the menu.
+# 关闭设置、保存数据，并把暂停所有权留给调用方。
 func _on_return_pressed() -> void:
 	if _returning:
 		return
 	_returning = true
 	_save_global_settings()
-	get_tree().paused = false
 	var tween := close_modal()
 	if tween != null:
 		await tween.finished
@@ -345,22 +354,22 @@ func _set_hint(text: String) -> void:
 	hint_label.text = text
 
 
-# Persists global settings through the registered save system.
+# 通过已注册的保存系统落盘全局设置。
 func _save_global_settings() -> void:
-	SaveSystem.save_global()
+	save_system.call("save_global")
 
 
-# Connects this page's authored buttons to the shared UI audio router.
+# 将 authored 控件接入共享 UI 音频。
 func _configure_button_audio() -> void:
-	GameAudio.setup_ingame_shader_button(return_button)
-	GameAudio.setup_ingame_shader_button(thanks_button)
-	GameAudio.setup_ingame_shader_button(reset_general_button)
-	GameAudio.setup_plain_button(return_button, "cancel")
-	GameAudio.setup_plain_button(general_tab)
-	GameAudio.setup_plain_button(controls_tab)
-	GameAudio.setup_plain_button(display_mode_option)
-	GameAudio.setup_plain_button(vsync_toggle)
-	GameAudio.setup_plain_button(web_fullscreen_button)
+	game_audio.call("setup_ingame_shader_button", return_button)
+	game_audio.call("setup_ingame_shader_button", thanks_button)
+	game_audio.call("setup_ingame_shader_button", reset_general_button)
+	game_audio.call("setup_plain_button", return_button, "cancel")
+	game_audio.call("setup_plain_button", general_tab)
+	game_audio.call("setup_plain_button", controls_tab)
+	game_audio.call("setup_plain_button", display_mode_option)
+	game_audio.call("setup_plain_button", vsync_toggle)
+	game_audio.call("setup_plain_button", web_fullscreen_button)
 
 
 # Shows the credits shortcut only when settings belongs to the title menu.

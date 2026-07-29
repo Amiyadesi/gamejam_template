@@ -50,6 +50,7 @@ offset_top = 34.0
 offset_right = -20.0
 offset_bottom = 250.0
 grow_horizontal = 0
+mouse_filter = 2
 theme = ExtResource("4_theme")
 theme_override_constants/margin_left = 0
 
@@ -58,15 +59,18 @@ unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(360, 104)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxToast")
 
 [node name="VBox" type="VBoxContainer" parent="ToastMargin/ToastPanel"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 6
 
 [node name="ToastTitle" type="Label" parent="ToastMargin/ToastPanel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.42, 1)
 theme_override_font_sizes/font_size = 24
 text = "提示"
@@ -74,6 +78,7 @@ text = "提示"
 [node name="ToastText" type="Label" parent="ToastMargin/ToastPanel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.92, 0.88, 1)
 theme_override_font_sizes/font_size = 18
 autowrap_mode = 2

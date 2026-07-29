@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scenes/UI/Gameplay/gameplay_ui_shell.gd" id="1_shell"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/PauseScreen/pause_screen.tscn" id="2_pause"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Menu/setting_screen.tscn" id="3_settings"]
+
+[node name="GameplayUiShell" type="CanvasLayer"]
+process_mode = 3
+layer = 80
+script = ExtResource("1_shell")
+
+[node name="PauseScreen" parent="." instance=ExtResource("2_pause")]
+unique_name_in_owner = true
+visible = false
+
+[node name="SettingScreen" parent="." instance=ExtResource("3_settings")]
+unique_name_in_owner = true
+visible = false

@@ -6,11 +6,12 @@ const HD_UI_FONT := preload("res://assets/fonts/ui_hd_font.tres")
 const PIXEL_UI_FONT := preload("res://assets/fonts/ui_pixel_font.tres")
 
 
-# Runs interaction, font, and authored-theme regressions for reusable UI.
+# 运行可复用 UI 的交互、字体、主题与鼠标穿透回归。
 func run(context, tree: SceneTree) -> void:
 	await _expect_hover_moves_focus(context, tree)
 	_expect_bundled_font_profiles(context)
 	_expect_feedback_overlay_uses_authored_theme(context, tree)
+	await _expect_toast_overlay_ignores_pointer_input(context, tree)
 
 
 # Verifies pointer focus, exclusive selection, label sizing, and disabled behavior.
@@ -101,3 +102,42 @@ func _expect_feedback_overlay_uses_authored_theme(context, tree: SceneTree) -> v
 		toast_margin.theme,
 		"feedback dialogs and toasts should share the authored theme"
 	)
+
+
+# 验证隐藏 Toast 区域不会截断其下方真实鼠标点击。
+func _expect_toast_overlay_ignores_pointer_input(context, tree: SceneTree) -> void:
+	var overlay := tree.root.get_node("FeedbackOverlay")
+	var toast_margin := overlay.get_node("ToastMargin") as Control
+	var target_button := Button.new()
+	target_button.position = toast_margin.position
+	target_button.size = toast_margin.size
+	tree.root.add_child(target_button)
+	await tree.process_frame
+
+	var state := {"pressed": false}
+	target_button.pressed.connect(func() -> void: state["pressed"] = true)
+	var click_position := toast_margin.get_global_rect().get_center()
+	var motion_event := InputEventMouseMotion.new()
+	motion_event.position = click_position
+	motion_event.global_position = click_position
+	tree.root.push_input(motion_event, true)
+	await tree.process_frame
+
+	var press_event := InputEventMouseButton.new()
+	press_event.button_index = MOUSE_BUTTON_LEFT
+	press_event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	press_event.position = click_position
+	press_event.global_position = click_position
+	press_event.pressed = true
+	tree.root.push_input(press_event, true)
+	await tree.process_frame
+
+	var release_event := press_event.duplicate() as InputEventMouseButton
+	release_event.button_mask = 0
+	release_event.pressed = false
+	tree.root.push_input(release_event, true)
+	await tree.process_frame
+	context.expect_true(bool(state["pressed"]), "toast overlay should let pointer clicks reach controls below it")
+
+	target_button.queue_free()
+	await tree.process_frame

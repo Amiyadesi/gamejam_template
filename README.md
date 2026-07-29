@@ -8,7 +8,8 @@ Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, sett
 2. Open `Scenes/UI/Menu/menu.tscn`.
 3. Select the root `Menu` and set `start_scene_path` to the first gameplay scene.
 4. Select `KeybindingUI` in `Scenes/UI/Menu/setting_screen.tscn` and edit its authored `action_allowlist` and `label_map` for your game's controls.
-5. Run the menu and verify Start, Settings, Credits, keyboard/gamepad focus, and Pause before adding gameplay.
+5. Instance `Scenes/UI/Gameplay/gameplay_ui_shell.tscn` once under the gameplay scene root.
+6. Run the menu and verify Start, Settings, Credits, keyboard/gamepad focus, and Pause before adding gameplay.
 
 The template intentionally has no gameplay scene. Start stays disabled until `start_scene_path` points to a valid packed scene.
 
@@ -18,6 +19,7 @@ The template intentionally has no gameplay scene. Start stays disabled until `st
 - Settings and key rebinding: `Scenes/UI/Menu/setting_screen.tscn`
 - Credits: `Scenes/UI/Menu/thank_screen.tscn`
 - Pause UI: `Scenes/UI/PauseScreen/pause_screen.tscn`
+- Gameplay UI shell: `Scenes/UI/Gameplay/gameplay_ui_shell.tscn`
 - UI components: `ShaderButton`, `ButtonEffectModule`, and `floating_text`
 - Audio router: `Scenes/Autoload/game_audio.gd`
 - Feedback overlay: `Scenes/UI/Common/feedback_overlay.tscn`
@@ -39,6 +41,8 @@ Third-party plugins remain under `addons/`. Each plugin keeps its own license.
 ## Settings And Platform Behavior
 
 Display, volume, accessibility, and input settings apply immediately. `SettingsModule` persists global settings, while Enhanced Save System serializes input bindings.
+
+The authored viewport is `1920×1080` with `Stretch Aspect = Keep`. Desktop window presets are limited to `1280×720`, `1600×900`, and `1920×1080`.
 
 | Behavior | Windows | Web |
 | --- | --- | --- |
@@ -80,6 +84,24 @@ func leave_scene() -> void:
 	SceneManager.change_scene_to_file("res://Scenes/Game/game.tscn")
 ```
 
+## Gameplay Pause Shell
+
+`GameplayUiShell` owns the complete gameplay pause route: `Esc`, Continue, Settings, Settings return, and confirmed return to the title menu. Settings never changes `SceneTree.paused` by itself; the shell keeps gameplay paused until Continue or a successful scene change.
+
+Instance the authored shell instead of duplicating pause scripts in each level. Change its `menu_scene_path` only when the project uses a different title scene. The public methods are `pause_game()`, `resume_game()`, `open_settings()`, and `quit_to_menu()`.
+
+Run the complete local verification with one command:
+
+```powershell
+pwsh ./tools/verify_template.ps1
+```
+
+If `godot` is not on `PATH`, pass the Godot 4.7 console executable explicitly:
+
+```powershell
+pwsh ./tools/verify_template.ps1 -GodotPath C:/Tools/Godot_v4.7-stable_win64_console.exe
+```
+
 ## Export
 
 Install the official Godot 4.7 export templates first. Web export must use the standard non-.NET Godot 4.7 editor; Godot's Mono/.NET editor cannot export Web projects. The committed presets target Web without threads or extension support and Windows Desktop:
@@ -118,12 +140,13 @@ Then open `http://127.0.0.1:8000/`.
 
 ## Local Addon Patches
 
-This template deliberately patches two bundled addons:
+This template deliberately patches three bundled addons:
 
 - **Enhanced Save System 2.0.0:** complete keyboard, mouse, and joypad event serialization; legacy wildcard-device fallback; stable in-place rebinding; and exact, device-aware conflict detection.
 - **SceneManager 2.0:** modal backdrops close from their current open progress, so closing during the opening animation neither jumps to fully open nor uses the wrong duration.
+- **Dialogue Manager 3.10.4:** a fresh headless editor falls back to Godot's default code font size until `EditorSettings` creates its persisted font-size key.
 
-Replacing either addon directory during an upgrade will remove these patches. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.
+Replacing any patched addon directory during an upgrade will remove these changes. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.
 
 ## License
 

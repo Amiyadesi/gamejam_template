@@ -375,6 +375,10 @@ func apply_theme() -> void:
 	if is_instance_valid(code_edit):
 		var scale: float = EditorInterface.get_editor_scale()
 		var editor_settings = EditorInterface.get_editor_settings()
+		# 全新 headless 编辑器尚未写入字体设置时使用 Godot 默认字号。
+		var code_font_size := 14
+		if editor_settings.has_setting("interface/editor/code_font_size"):
+			code_font_size = int(editor_settings.get_setting("interface/editor/code_font_size"))
 		code_edit.theme_overrides = {
 			scale = scale,
 
@@ -397,7 +401,7 @@ func apply_theme() -> void:
 			comments_color = editor_settings.get_setting("text_editor/theme/highlighting/comment_color"),
 			jumps_color = Color(editor_settings.get_setting("text_editor/theme/highlighting/control_flow_keyword_color"), 0.6),
 
-			font_size = editor_settings.get_setting("interface/editor/code_font_size")
+			font_size = code_font_size
 		}
 
 		banner_new_button.icon = get_theme_icon("New", "EditorIcons")
