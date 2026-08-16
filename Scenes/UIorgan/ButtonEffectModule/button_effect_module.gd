@@ -11,8 +11,10 @@ class_name ButtonEffectModule
 @export var anim_duration := 0.09
 ## 按下时的轻微压缩；悬停不改变控件边界。
 @export var press_scale := Vector2.ONE * 0.985
-## 普通按钮按下时要播放的界面音类型。
-@export_enum("none", "confirm", "cancel") var press_sound_kind := "confirm"
+@export_group("Audio")
+@export var press_sound: AudioStream
+@export_range(-80.0, 6.0, 0.5) var press_volume_db := -13.0
+@export_range(0.01, 4.0, 0.01) var press_pitch_scale := 1.0
 
 @onready var button: Button = get_parent()
 
@@ -56,19 +58,11 @@ func _reset_tween() -> void:
 
 # Routes non-shader button audio through the optional global audio service.
 func _play_press_sound() -> void:
-	if press_sound_kind == "none" or button is ShaderButton:
+	if press_sound == null or button is ShaderButton:
 		return
 	var game_audio := _get_game_audio()
-	if game_audio == null:
-		return
-	match press_sound_kind:
-		"confirm":
-			if game_audio.has_method("play_ui_button_press"):
-				game_audio.call("play_ui_button_press", button)
-			else:
-				game_audio.call("play_ui_confirm_ingame")
-		"cancel":
-			game_audio.call("play_ui_cancel")
+	if game_audio != null:
+		game_audio.call("play_ui", press_sound, press_volume_db, press_pitch_scale)
 
 
 # Finds the optional global audio router at the project boundary.

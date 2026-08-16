@@ -1,14 +1,17 @@
 extends "./abstract_audio_player_pool.gd"
 
 
-func play(resource: AudioStream, fade_in_duration: float, override_bus: String = "") -> AudioStreamPlayer:
+# Plays one ambient resource or retargets its active fade.
+func play(resource: AudioStream, fade_in_duration: float, override_bus: String = "", volume_db: float = 0.0) -> AudioStreamPlayer:
 	var player = get_busy_player_with_resource(resource)
 
 	# If it's already playing then don't play it again
-	if is_instance_valid(player): return player
+	if is_instance_valid(player):
+		fade_volume(player, player.volume_db, volume_db, fade_in_duration)
+		return player
 
 	player = prepare(resource, override_bus)
-	fade_volume(player, -80.0, 0.0, fade_in_duration)
+	fade_volume(player, -80.0, volume_db, fade_in_duration)
 	player.call_deferred("play")
 	return player
 

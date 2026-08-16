@@ -1,7 +1,7 @@
 [gd_scene format=3 ]
 
 [ext_resource type="Script" path="res://Dialogue/Examples/demo/demo_scene.gd" id="1_dscn"]
-[ext_resource type="PackedScene" path="res://Dialogue/Examples/modular_balloon.tscn" id="2_b0tqu"]
+[ext_resource type="PackedScene" path="res://Dialogue/Runtime/modular_balloon.tscn" id="2_b0tqu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_main_bg"]
 bg_color = Color(0.06, 0.06, 0.1, 0.98)

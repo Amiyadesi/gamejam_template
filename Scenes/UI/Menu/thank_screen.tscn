@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bbq46x1emgrc3"]
+[gd_scene load_steps=10 format=3 uid="uid://bbq46x1emgrc3"]
 
 [ext_resource type="Script" uid="uid://dw35wdmcgr3qy" path="res://Scenes/UI/Menu/thank_screen.gd" id="1_thanks"]
 [ext_resource type="Shader" uid="uid://dtcjm8c7boghc" path="res://resources/shader/blur.gdshader" id="2_blur"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://uacp5p6j6svs" path="res://Scenes/UI/Menu/setting_local_light_vfx.tscn" id="4_light"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="5_button"]
 [ext_resource type="Theme" path="res://resources/settings_theme.tres" id="6_theme"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/cancel/Fantasy_UI (27).wav" id="7_cancel"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_thanks_blur"]
 shader = ExtResource("2_blur")
@@ -158,4 +159,5 @@ custom_minimum_size = Vector2(170, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "返回"
-
+press_sound = ExtResource("7_cancel")
+press_volume_db = -12.0

@@ -123,8 +123,9 @@ func set_ambient_sound_volume(volume_between_0_and_1: float) -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(ambient_sounds.bus), linear_to_db(volume_between_0_and_1))
 
 
-func play_ambient_sound(resource: AudioStream, fade_in_duration: float = 0.0, override_bus: String = "") -> AudioStreamPlayer:
-	return ambient_sounds.play(resource, fade_in_duration, override_bus)
+# Plays ambience with backend-owned fading to the requested local volume.
+func play_ambient_sound(resource: AudioStream, fade_in_duration: float = 0.0, override_bus: String = "", volume_db: float = 0.0) -> AudioStreamPlayer:
+	return ambient_sounds.play(resource, fade_in_duration, override_bus, volume_db)
 
 
 func stop_ambient_sound(resource: AudioStream, fade_out_duration: float = 0.0) -> void:

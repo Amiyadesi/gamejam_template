@@ -19,6 +19,11 @@ const HIGHLIGHT_PROGRESS := 1.0
 		outline_color = value
 		if is_node_ready():
 			_sync_shader_geometry()
+@export_group("Audio")
+@export var press_sound: AudioStream
+@export_range(-80.0, 6.0, 0.5) var press_volume_db := -13.0
+@export var select_sound: AudioStream
+@export_range(-80.0, 6.0, 0.5) var select_volume_db := -18.0
 @export_group("BBcode")
 @export_multiline var bb_text: String:
 	set(value):
@@ -172,27 +177,22 @@ func _sync_shader_geometry() -> void:
 		)
 
 
-# Plays the shared UI confirmation sound, with the authored local stream as fallback.
+# Plays the authored press sound through the project audio facade.
 func _play_press_sound() -> void:
+	if press_sound == null:
+		return
 	var game_audio := _get_game_audio()
-	if game_audio != null and game_audio.has_method("play_ui_button_press"):
-		game_audio.call("play_ui_button_press", self)
-		return
-	var press_audio := get_node_or_null("PressAudio") as AudioStreamPlayer
-	if press_audio != null and press_audio.stream != null:
-		press_audio.bus = "UI"
-		press_audio.volume_db = -12.0
-		press_audio.play()
+	if game_audio != null:
+		game_audio.call("play_ui", press_sound, press_volume_db)
 
 
-# Plays hover audio only when the reusable scene has an authored stream.
+# Plays the authored selection sound through the project audio facade.
 func _play_select_sound() -> void:
-	var select_audio := get_node_or_null("SelectAudio") as AudioStreamPlayer
-	if select_audio == null or select_audio.stream == null:
+	if select_sound == null:
 		return
-	select_audio.bus = "UI"
-	select_audio.volume_db = -18.0
-	select_audio.play()
+	var game_audio := _get_game_audio()
+	if game_audio != null:
+		game_audio.call("play_ui", select_sound, select_volume_db)
 
 
 # Finds the optional global audio router at the project boundary.

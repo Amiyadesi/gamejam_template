@@ -133,16 +133,8 @@ func apply_setting(key: String, value: Variant) -> void:
 	match key:
 		"language":
 			_apply_language(str(value))
-		"master_volume":
-			_apply_master_volume(float(value))
-		"music_volume":
-			_apply_music_volume(float(value))
-		"sfx_volume":
-			_apply_sfx_volume(float(value))
-		"ui_volume":
-			_apply_ui_volume(float(value))
-		"ambient_volume":
-			_apply_ambient_volume(float(value))
+		"master_volume", "music_volume", "sfx_volume", "ui_volume", "ambient_volume":
+			_refresh_audio_volumes()
 		"display_mode", "borderless_enabled", "window_width", "window_height":
 			_apply_display_mode()
 		"vsync_enabled":
@@ -212,39 +204,11 @@ func _apply_language(language_code: String) -> void:
 
 
 
-# Applies the master volume to Godot's Master audio bus.
-func _apply_master_volume(volume_between_0_and_1: float) -> void:
-	var master_bus_index := AudioServer.get_bus_index("Master")
-	if master_bus_index >= 0:
-		AudioServer.set_bus_volume_db(master_bus_index, linear_to_db(volume_between_0_and_1))
-
-
-# Applies music volume through SoundManager when available.
-func _apply_music_volume(volume_between_0_and_1: float) -> void:
-	var sound_manager := _get_sound_manager()
-	if sound_manager != null and sound_manager.has_method("set_music_volume"):
-		sound_manager.call("set_music_volume", volume_between_0_and_1)
-
-
-# Applies sound-effect volume through SoundManager when available.
-func _apply_sfx_volume(volume_between_0_and_1: float) -> void:
-	var sound_manager := _get_sound_manager()
-	if sound_manager != null and sound_manager.has_method("set_sound_volume"):
-		sound_manager.call("set_sound_volume", volume_between_0_and_1)
-
-
-# Applies interface-sound volume through SoundManager when available.
-func _apply_ui_volume(volume_between_0_and_1: float) -> void:
-	var sound_manager := _get_sound_manager()
-	if sound_manager != null and sound_manager.has_method("set_ui_sound_volume"):
-		sound_manager.call("set_ui_sound_volume", volume_between_0_and_1)
-
-
-# Applies ambient volume through SoundManager when available.
-func _apply_ambient_volume(volume_between_0_and_1: float) -> void:
-	var sound_manager := _get_sound_manager()
-	if sound_manager != null and sound_manager.has_method("set_ambient_sound_volume"):
-		sound_manager.call("set_ambient_sound_volume", volume_between_0_and_1)
+# Routes every volume change through the project audio facade.
+func _refresh_audio_volumes() -> void:
+	var game_audio := _get_game_audio()
+	if game_audio != null:
+		game_audio.call("refresh_runtime_volumes")
 
 
 # Applies fullscreen/windowed/borderless size and position to the root window.
@@ -324,15 +288,15 @@ func _get_save_system() -> Node:
 	return root.get_node_or_null("SaveSystem")
 
 
-# Finds the SoundManager autoload when running inside a SceneTree.
-func _get_sound_manager() -> Node:
+# Finds GameAudio after its later autoload slot has initialized.
+func _get_game_audio() -> Node:
 	var main_loop := Engine.get_main_loop()
 	if not (main_loop is SceneTree):
 		return null
 	var root := (main_loop as SceneTree).root
 	if root == null:
 		return null
-	return root.get_node_or_null("SoundManager")
+	return root.get_node_or_null("GameAudio")
 
 
 # Reads current system time for legacy timezone migration.

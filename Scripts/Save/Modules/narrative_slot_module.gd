@@ -16,8 +16,14 @@ var progress_note: String = DEFAULT_PROGRESS_NOTE
 var flags: Dictionary = {}
 var values: Dictionary = {}
 var choices: Dictionary = {}
-var event_history: Dictionary = {}
+var events: Dictionary = {}
 var stage_states: Dictionary = {}
+var dialogue_resource_path: String = ""
+var dialogue_line_id: String = ""
+var dialogue_title: String = ""
+var chapter_name: String = ""
+var character_name: String = ""
+var dialogue_snippet: String = ""
 
 
 # Registers the latest slot narrative module instance.
@@ -37,6 +43,7 @@ func is_global() -> bool:
 
 # Captures slot narrative progress, values, choices, events, and stage state.
 func collect_data() -> Dictionary:
+	ensure_defaults()
 	return {
 		"chapter_progress": chapter_progress,
 		"current_stage_id": current_stage_id,
@@ -44,8 +51,14 @@ func collect_data() -> Dictionary:
 		"flags": flags.duplicate(true),
 		"values": values.duplicate(true),
 		"choices": choices.duplicate(true),
-		"event_history": event_history.duplicate(true),
+		"events": events.duplicate(true),
 		"stage_states": stage_states.duplicate(true),
+		"dialogue_resource_path": dialogue_resource_path,
+		"dialogue_line_id": dialogue_line_id,
+		"dialogue_title": dialogue_title,
+		"chapter_name": chapter_name,
+		"character_name": character_name,
+		"dialogue_snippet": dialogue_snippet,
 	}
 
 
@@ -61,8 +74,14 @@ func apply_data(data: Dictionary) -> void:
 	flags = _safe_dict(data.get("flags", {}))
 	values = _safe_dict(data.get("values", {}))
 	choices = _safe_dict(data.get("choices", data.get("choices_made", {})))
-	event_history = _safe_dict(data.get("event_history", {}))
+	events = _safe_dict(data.get("events", {}))
 	stage_states = _normalize_stage_states(data.get("stage_states", {}))
+	dialogue_resource_path = str(data.get("dialogue_resource_path", ""))
+	dialogue_line_id = str(data.get("dialogue_line_id", ""))
+	dialogue_title = str(data.get("dialogue_title", ""))
+	chapter_name = str(data.get("chapter_name", ""))
+	character_name = str(data.get("character_name", ""))
+	dialogue_snippet = str(data.get("dialogue_snippet", ""))
 	ensure_stage_state(DEFAULT_STAGE_ID)
 	ensure_stage_state(current_stage_id)
 
@@ -76,16 +95,63 @@ func get_default_data() -> Dictionary:
 		"flags": {},
 		"values": {},
 		"choices": {},
-		"event_history": {},
+		"events": {},
 		"stage_states": {
 			DEFAULT_STAGE_ID: DEFAULT_STAGE_STATE.duplicate(true),
 		},
+		"dialogue_resource_path": "",
+		"dialogue_line_id": "",
+		"dialogue_title": "",
+		"chapter_name": "",
+		"character_name": "",
+		"dialogue_snippet": "",
 	}
 
 
 # Resets the slot narrative state to default data for a new game.
 func on_new_game() -> void:
 	apply_data(get_default_data())
+
+
+# Records the exact current dialogue line in memory for the next explicit save.
+func record_dialogue_progress(
+		resource_or_path: Variant,
+		line_id: String,
+		title: String = "",
+		chapter: String = "",
+		character: String = "",
+		snippet: String = "") -> void:
+	dialogue_resource_path = _resource_path_from(resource_or_path)
+	dialogue_line_id = line_id
+	dialogue_title = title
+	chapter_name = chapter
+	character_name = character
+	dialogue_snippet = _plain_text(snippet).left(60)
+
+
+# Clears the in-memory exact dialogue snapshot without touching disk.
+func clear_dialogue_progress() -> void:
+	dialogue_resource_path = ""
+	dialogue_line_id = ""
+	dialogue_title = ""
+	chapter_name = ""
+	character_name = ""
+	dialogue_snippet = ""
+
+
+# Reports whether an exact resumable dialogue line is available.
+func has_dialogue_progress() -> bool:
+	return not dialogue_resource_path.is_empty() and not dialogue_line_id.is_empty()
+
+
+# Loads the recorded dialogue resource if it still exists.
+func load_dialogue_resource() -> Resource:
+	if dialogue_resource_path.is_empty():
+		return null
+	if not ResourceLoader.exists(dialogue_resource_path):
+		push_warning("NarrativeSlotModule: resource not found: %s" % dialogue_resource_path)
+		return null
+	return load(dialogue_resource_path)
 
 
 # Repairs required progress fields and stage dictionaries after direct field edits.
@@ -121,7 +187,7 @@ func get_value(key: String, fallback: Variant = null) -> Variant:
 			if key.begins_with("choices."):
 				return choices.get(key.trim_prefix("choices."), fallback)
 			if key.begins_with("events."):
-				return event_history.get(key.trim_prefix("events."), fallback)
+				return events.get(key.trim_prefix("events."), fallback)
 			if key.begins_with("stage_states."):
 				return _resolve_stage_path(key.trim_prefix("stage_states."), fallback)
 			return values.get(key, fallback)
@@ -148,7 +214,7 @@ func set_value(key: String, value: Variant) -> bool:
 				choices[key.trim_prefix("choices.")] = value
 				return true
 			if key.begins_with("events."):
-				event_history[key.trim_prefix("events.")] = value
+				events[key.trim_prefix("events.")] = value
 				return true
 			if key.begins_with("stage_states."):
 				return _write_stage_path(key.trim_prefix("stage_states."), value)
@@ -176,7 +242,7 @@ func clear_value(key: String) -> bool:
 				choices.erase(key.trim_prefix("choices."))
 				return true
 			if key.begins_with("events."):
-				event_history.erase(key.trim_prefix("events."))
+				events.erase(key.trim_prefix("events."))
 				return true
 			if key.begins_with("stage_states."):
 				return _clear_stage_path(key.trim_prefix("stage_states."))
@@ -212,14 +278,14 @@ func clear_flag(flag_key: String) -> void:
 
 # Checks whether a slot-scoped event marker has been written.
 func is_event_fired(event_id: String) -> bool:
-	return _is_truthy(event_history.get(event_id, false))
+	return _is_truthy(events.get(event_id, false))
 
 
 # Writes a slot-scoped event marker.
 func mark_event_fired(event_id: String) -> void:
 	if event_id.is_empty():
 		return
-	event_history[event_id] = true
+	events[event_id] = true
 
 
 # Creates or repairs a normalized stage-state dictionary for one stage id.
@@ -370,6 +436,33 @@ func _normalize_stage_id(stage_id: String) -> String:
 # Returns a defensive dictionary copy or an empty dictionary for invalid data.
 func _safe_dict(value: Variant) -> Dictionary:
 	return (value as Dictionary).duplicate(true) if value is Dictionary else {}
+
+
+# Extracts a stable resource path from a Resource or serialized path.
+func _resource_path_from(resource_or_path: Variant) -> String:
+	if resource_or_path is String:
+		return str(resource_or_path)
+	if resource_or_path is Resource:
+		var resource := resource_or_path as Resource
+		return resource.resource_path if is_instance_valid(resource) else ""
+	return ""
+
+
+# Removes common BBCode tags before storing a compact UI snippet.
+func _plain_text(text: String) -> String:
+	var result := ""
+	var inside_tag := false
+	for i in text.length():
+		var ch := text[i]
+		if ch == "[":
+			inside_tag = true
+			continue
+		if ch == "]":
+			inside_tag = false
+			continue
+		if not inside_tag:
+			result += ch
+	return result.strip_edges()
 
 
 # Coerces common scalar values to bool for flags and event markers.

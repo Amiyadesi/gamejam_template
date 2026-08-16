@@ -4,7 +4,8 @@ extends EditorPlugin
 func _enter_tree() -> void:
 	var fh := FontHelper.new()
 	var fonts := {}
-	fh._scan_for_fonts(fonts, "res://", true)
+	# Keep the project font picker limited to authored template assets.
+	fh._scan_for_fonts(fonts, "res://assets/fonts", true)
 	ProjectSettings.set("richer_text_label/fonts", fonts)
 	ProjectSettings.add_property_info({ "name": "richer_text_label/fonts", "type": TYPE_DICTIONARY })
 	

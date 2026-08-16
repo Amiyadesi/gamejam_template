@@ -1,7 +1,7 @@
 [gd_scene format=3 ]
 
 [ext_resource type="Script" path="res://Dialogue/Examples/demo/enhanced_demo.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://Dialogue/Examples/modular_balloon.tscn" id="2_balloon"]
+[ext_resource type="PackedScene" path="res://Dialogue/Runtime/modular_balloon.tscn" id="2_balloon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.08, 0.08, 0.12, 0.95)
@@ -189,5 +189,4 @@ autowrap_mode = 3
 [node name="DialogueBalloon" parent="." instance=ExtResource("2_balloon")]
 balloon_direction = "right"
 enter_animation_type = "slide_down"
-
 

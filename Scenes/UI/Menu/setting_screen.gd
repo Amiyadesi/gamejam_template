@@ -93,7 +93,6 @@ func _ready() -> void:
 	_configure_display_options()
 	_register_general_rows()
 	_connect_signals()
-	_configure_button_audio()
 	_sync_menu_only_controls()
 	refresh_from_settings()
 	_set_tab(0)
@@ -357,19 +356,6 @@ func _set_hint(text: String) -> void:
 # 通过已注册的保存系统落盘全局设置。
 func _save_global_settings() -> void:
 	save_system.call("save_global")
-
-
-# 将 authored 控件接入共享 UI 音频。
-func _configure_button_audio() -> void:
-	game_audio.call("setup_ingame_shader_button", return_button)
-	game_audio.call("setup_ingame_shader_button", thanks_button)
-	game_audio.call("setup_ingame_shader_button", reset_general_button)
-	game_audio.call("setup_plain_button", return_button, "cancel")
-	game_audio.call("setup_plain_button", general_tab)
-	game_audio.call("setup_plain_button", controls_tab)
-	game_audio.call("setup_plain_button", display_mode_option)
-	game_audio.call("setup_plain_button", vsync_toggle)
-	game_audio.call("setup_plain_button", web_fullscreen_button)
 
 
 # Shows the credits shortcut only when settings belongs to the title menu.

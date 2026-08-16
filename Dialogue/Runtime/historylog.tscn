@@ -1,6 +1,6 @@
 [gd_scene format=3 ]
 
-[ext_resource type="Script" path="res://Dialogue/Examples/historylog.gd" id="1_hist"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/historylog.gd" id="1_hist"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.05, 0.05, 0.08, 0.92)

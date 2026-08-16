@@ -2,137 +2,86 @@ extends Node
 ## Template-wide audio router for music, UI sounds, and runtime bus volume.
 
 const DEFAULT_BUS_LAYOUT: AudioBusLayout = preload("res://default_bus_layout.tres")
-const UI_CANCEL_SOUND: AudioStream = preload("res://assets/sfx/ui/cancel/Fantasy_UI (27).wav")
-const UI_CONFIRM_INGAME_SOUND: AudioStream = preload("res://assets/sfx/ui/confirm_ingame/Fantasy_UI (4).wav")
-const UI_CONFIRM_MENU_SOUND: AudioStream = preload("res://assets/sfx/ui/confirm_menu/Fantasy_UI (5).wav")
-const UI_CONFIRM_MENU_VOLUME_DB := -12.0
-const UI_CONFIRM_INGAME_VOLUME_DB := -13.0
-const UI_CANCEL_VOLUME_DB := -12.0
 const SILENCE_DB := -80.0
 
-@export var startup_music: AudioStream
-@export var startup_music_key := "menu"
-
-var _current_music_key := ""
-var _music_players: Array[AudioStreamPlayer] = []
-var _active_music_player_index := -1
-var _music_tween: Tween
+var _current_music_key: StringName
+var _current_music_player: AudioStreamPlayer
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioServer.set_bus_layout(DEFAULT_BUS_LAYOUT)
-	_ensure_music_players()
 	_apply_sound_manager_buses()
-	_connect_settings_signal()
 	refresh_runtime_volumes()
-	if startup_music != null:
-		call_deferred("play_music", startup_music_key, startup_music, 0.1)
 
 
-func play_music(track_key: String, stream: AudioStream, crossfade_duration := 0.6) -> void:
+# Starts one semantic music track through SoundManager.
+func play_music(
+		track_key: StringName,
+		stream: AudioStream,
+		crossfade_duration := 0.6) -> AudioStreamPlayer:
 	if stream == null:
-		return
-	_ensure_music_players()
-	var active_player := _get_active_music_player()
-	if _current_music_key == track_key and active_player != null and active_player.playing and active_player.stream == stream:
-		return
+		return null
+	if (
+		_current_music_key == track_key
+		and is_instance_valid(_current_music_player)
+	):
+		return _current_music_player
 
 	_current_music_key = track_key
-	var next_index := 0 if _active_music_player_index != 0 else 1
-	var next_player := _music_players[next_index]
-	var previous_player := active_player
-	_active_music_player_index = next_index
-
-	if _music_tween != null and _music_tween.is_valid():
-		_music_tween.kill()
-
-	next_player.bus = "Music"
-	next_player.stream = stream
-	next_player.stream_paused = false
-	next_player.volume_db = SILENCE_DB if crossfade_duration > 0.0 else 0.0
-	next_player.play()
-
-	if crossfade_duration <= 0.0:
-		if previous_player != null and previous_player != next_player:
-			previous_player.stop()
-			previous_player.stream = null
-		next_player.volume_db = 0.0
-		return
-
-	_music_tween = create_tween()
-	_music_tween.set_ignore_time_scale(true)
-	_music_tween.parallel().tween_property(next_player, "volume_db", 0.0, crossfade_duration)
-	if previous_player != null and previous_player != next_player and previous_player.playing:
-		_music_tween.parallel().tween_property(previous_player, "volume_db", SILENCE_DB, crossfade_duration)
-		_music_tween.finished.connect(func() -> void:
-			if is_instance_valid(previous_player) and previous_player != _get_active_music_player():
-				previous_player.stop()
-				previous_player.stream = null
-		, CONNECT_ONE_SHOT)
+	_current_music_player = SoundManager.play_music(stream, maxf(crossfade_duration, 0.0), "Music")
+	if is_instance_valid(_current_music_player):
+		var finished_callback := _on_music_finished.bind(_current_music_player)
+		if not _current_music_player.finished.is_connected(finished_callback):
+			_current_music_player.finished.connect(finished_callback, CONNECT_ONE_SHOT)
+	return _current_music_player
 
 
+# Stops the active music and clears semantic deduplication state.
 func stop_music(fade_out_duration := 0.3) -> void:
-	_current_music_key = ""
-	if _music_tween != null and _music_tween.is_valid():
-		_music_tween.kill()
-	if fade_out_duration <= 0.0:
-		for player in _music_players:
-			player.stop()
-			player.stream = null
-			player.volume_db = SILENCE_DB
-		_active_music_player_index = -1
-		return
-	_music_tween = create_tween()
-	_music_tween.set_ignore_time_scale(true)
-	for player in _music_players:
-		if player.playing:
-			_music_tween.parallel().tween_property(player, "volume_db", SILENCE_DB, fade_out_duration)
-	_music_tween.finished.connect(func() -> void:
-		for player in _music_players:
-			player.stop()
-			player.stream = null
-			player.volume_db = SILENCE_DB
-		_active_music_player_index = -1
-	, CONNECT_ONE_SHOT)
+	SoundManager.stop_music(maxf(fade_out_duration, 0.0))
+	_current_music_key = &""
+	_current_music_player = null
 
 
-func play_ui_confirm_menu() -> void:
-	_play_ui_sound(UI_CONFIRM_MENU_SOUND, UI_CONFIRM_MENU_VOLUME_DB)
+# Plays a one-shot gameplay sound through the SFX pool.
+func play_sfx(
+		stream: AudioStream,
+		volume_db := 0.0,
+		pitch_scale := 1.0) -> AudioStreamPlayer:
+	return _configure_player(SoundManager.play_sound(stream, "SFX") if stream != null else null, volume_db, pitch_scale)
 
 
-func play_ui_confirm_ingame() -> void:
-	_play_ui_sound(UI_CONFIRM_INGAME_SOUND, UI_CONFIRM_INGAME_VOLUME_DB)
+# Plays a one-shot interface sound through the UI pool.
+func play_ui(
+		stream: AudioStream,
+		volume_db := 0.0,
+		pitch_scale := 1.0) -> AudioStreamPlayer:
+	return _configure_player(SoundManager.play_ui_sound(stream, "UI") if stream != null else null, volume_db, pitch_scale)
 
 
-func play_ui_cancel() -> void:
-	_play_ui_sound(UI_CANCEL_SOUND, UI_CANCEL_VOLUME_DB)
+# Plays or reuses ambience with backend-owned fading.
+func play_ambient(
+		stream: AudioStream,
+		fade_in_duration := 0.0,
+		volume_db := 0.0) -> AudioStreamPlayer:
+	if stream == null:
+		return null
+	return SoundManager.play_ambient_sound(
+		stream,
+		maxf(fade_in_duration, 0.0),
+		"Ambient",
+		volume_db
+	) as AudioStreamPlayer
 
 
-func play_ui_button_press(button: Node) -> void:
-	match str(button.get_meta("ui_sound_kind", "ingame_confirm")):
-		"menu_confirm":
-			play_ui_confirm_menu()
-		"cancel":
-			play_ui_cancel()
-		"none":
-			pass
-		_:
-			play_ui_confirm_ingame()
+# Stops one ambient stream through the backend pool.
+func stop_ambient(stream: AudioStream, fade_out_duration := 0.0) -> void:
+	if stream != null:
+		SoundManager.stop_ambient_sound(stream, maxf(fade_out_duration, 0.0))
 
 
-func setup_menu_shader_button(button: Node) -> void:
-	_set_shader_button_audio(button, UI_CONFIRM_MENU_SOUND, UI_CONFIRM_MENU_VOLUME_DB, "menu_confirm")
-
-
-func setup_ingame_shader_button(button: Node) -> void:
-	_set_shader_button_audio(button, UI_CONFIRM_INGAME_SOUND, UI_CONFIRM_INGAME_VOLUME_DB, "ingame_confirm")
-
-
-func setup_plain_button(button: Node, sound_kind := "ingame_confirm") -> void:
-	button.set_meta("ui_sound_kind", sound_kind)
-
-
+# Applies current settings to the authored runtime audio buses.
 func refresh_runtime_volumes() -> void:
 	_apply_sound_manager_buses()
 	var master_volume := _get_setting("master_volume", 0.8)
@@ -147,36 +96,26 @@ func refresh_runtime_volumes() -> void:
 	_set_bus_volume_linear("Ambient", ambient_volume)
 
 
-func _ensure_music_players() -> void:
-	while _music_players.size() < 2:
-		var player := AudioStreamPlayer.new()
-		player.name = "MusicPlayer%d" % _music_players.size()
-		player.bus = "Music"
-		player.volume_db = SILENCE_DB
-		player.process_mode = Node.PROCESS_MODE_ALWAYS
-		add_child(player)
-		_music_players.append(player)
-
-
-func _get_active_music_player() -> AudioStreamPlayer:
-	if _active_music_player_index < 0 or _active_music_player_index >= _music_players.size():
+# Applies per-play volume and pitch to a pooled one-shot player.
+func _configure_player(
+		player: AudioStreamPlayer,
+		volume_db: float,
+		pitch_scale: float) -> AudioStreamPlayer:
+	if player == null:
 		return null
-	return _music_players[_active_music_player_index]
-
-
-func _play_ui_sound(stream: AudioStream, volume_db := 0.0) -> void:
-	var player := SoundManager.play_ui_sound(stream, "UI") as AudioStreamPlayer
 	player.volume_db = volume_db
+	player.pitch_scale = maxf(pitch_scale, 0.01)
+	return player
 
 
-func _set_shader_button_audio(button: Node, press_stream: AudioStream, press_volume_db: float, sound_kind: String) -> void:
-	button.set_meta("ui_sound_kind", sound_kind)
-	var press_audio := button.get_node("PressAudio") as AudioStreamPlayer
-	press_audio.bus = "UI"
-	press_audio.stream = press_stream
-	press_audio.volume_db = press_volume_db
+# Releases semantic deduplication after the active track ends naturally.
+func _on_music_finished(player: AudioStreamPlayer) -> void:
+	if _current_music_player == player:
+		_current_music_key = &""
+		_current_music_player = null
 
 
+# Keeps SoundManager's pools bound to the template bus layout.
 func _apply_sound_manager_buses() -> void:
 	SoundManager.set_default_sound_bus("SFX")
 	SoundManager.set_default_ui_sound_bus("UI")
@@ -184,19 +123,12 @@ func _apply_sound_manager_buses() -> void:
 	SoundManager.set_default_music_bus("Music")
 
 
-func _connect_settings_signal() -> void:
-	if SettingsModule.instance != null:
-		SettingsModule.instance.settings_changed.connect(_on_settings_changed)
-
-
-func _on_settings_changed(_key: String, _value: Variant) -> void:
-	refresh_runtime_volumes()
-
-
+# Reads one normalized volume setting from the registered save module.
 func _get_setting(key: String, fallback: float) -> float:
 	return float(SettingsModule.instance.get_value(key, fallback)) if SettingsModule.instance != null else fallback
 
 
+# Writes one linear volume value to an authored audio bus.
 func _set_bus_volume_linear(bus_name: String, linear_volume: float) -> void:
 	var bus_index := AudioServer.get_bus_index(bus_name)
 	if bus_index < 0:

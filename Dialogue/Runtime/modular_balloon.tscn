@@ -1,27 +1,27 @@
 [gd_scene format=3 ]
 
-[ext_resource type="Script" path="res://Dialogue/Examples/modular_balloon.gd" id="1_script"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modular_balloon.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://Dialogue/Runtime/project_dialogue_label.tscn" id="3_dialogue_label"]
-[ext_resource type="PackedScene" path="res://Dialogue/Examples/historylog.tscn" id="4_history_log"]
+[ext_resource type="PackedScene" path="res://Dialogue/Runtime/historylog.tscn" id="4_history_log"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_back.gd" id="5_pviqj"]
 [ext_resource type="Script" path="res://Dialogue/Runtime/project_dialogue_responses_menu.gd" id="5_responses_menu"]
 [ext_resource type="Script" path="res://Dialogue/Effects/Dialogue/dmfx_beat.gd" id="6_21g0n"]
-[ext_resource type="Script" path="res://Dialogue/Examples/simple/human_texture.gd" id="6_human_texture"]
-[ext_resource type="Script" path="res://Dialogue/Examples/illustration/illustration_manager.gd" id="7_illustration_manager"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/simple/human_texture.gd" id="6_human_texture"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/illustration/illustration_manager.gd" id="7_illustration_manager"]
 [ext_resource type="Script" path="res://Dialogue/Effects/Dialogue/dmfx_breathe.gd" id="7_yo0ww"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/flow_control_module.gd" id="8_flow"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/flow_control_module.gd" id="8_flow"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_console.gd" id="8_rrwpb"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/animation_module.gd" id="9_animation"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/animation_module.gd" id="9_animation"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/effects/rte_curspull.gd" id="9_lerfo"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/effects/rte_cuss.gd" id="10_loolu"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/typing_sound_module.gd" id="10_typing_sound"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/typing_sound_module.gd" id="10_typing_sound"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_fader.gd" id="11_3j3o5"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/history_module.gd" id="11_history"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/history_module.gd" id="11_history"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_fallin.gd" id="12_dorth"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/save_module.gd" id="12_save"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/save_module.gd" id="12_save"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_focus.gd" id="13_hvnv7"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/illustration_module.gd" id="13_illustration"]
-[ext_resource type="Script" path="res://Dialogue/Examples/modules/character_ui_module.gd" id="14_character_ui"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/illustration_module.gd" id="13_illustration"]
+[ext_resource type="Script" path="res://Dialogue/Runtime/modules/character_ui_module.gd" id="14_character_ui"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_fromcursor.gd" id="14_s50go"]
 [ext_resource type="Script" path="res://Dialogue/Effects/Dialogue/dmfx_ghost.gd" id="15_excge"]
 [ext_resource type="Script" path="res://Dialogue/Effects/RichText/anims/rte_growin.gd" id="16_mbm83"]
@@ -338,7 +338,7 @@ corner_radius_bottom_left = 4
 layer = 100
 script = ExtResource("1_script")
 history_enabled = false
-auto_save_progress = false
+track_dialogue_progress = false
 typing_sound = SubResource("AudioStreamGenerator_qnahx")
 
 [node name="TalkSound" type="AudioStreamPlayer" parent="." unique_id=467482644]

@@ -17,11 +17,8 @@ var _dialog_open: bool
 var _dialog_has_cancel: bool
 
 
-# Configures shared button sounds for the authored overlay controls.
+# Connects the authored overlay controls.
 func _ready() -> void:
-	GameAudio.setup_ingame_shader_button(confirm_button)
-	GameAudio.setup_ingame_shader_button(cancel_button)
-	GameAudio.setup_plain_button(cancel_button, "cancel")
 	confirm_button.pressed.connect(_resolve_confirm)
 	cancel_button.pressed.connect(_resolve_cancel)
 

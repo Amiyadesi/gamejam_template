@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://uacp5p6j6svs" path="res://Scenes/UI/Menu/setting_local_light_vfx.tscn" id="4_light"]
 [ext_resource type="PackedScene" uid="uid://dssid7iw4aqb6" path="res://Scenes/UIorgan/ShaderButton/shader_button.tscn" id="6_4xm8e"]
 [ext_resource type="Theme" path="res://resources/settings_theme.tres" id="7_theme"]
+[ext_resource type="Script" uid="uid://i3xgym8bhl33" path="res://Scenes/UIorgan/ButtonEffectModule/button_effect_module.gd" id="8_button_effect"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/confirm_ingame/Fantasy_UI (4).wav" id="9_confirm"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/cancel/Fantasy_UI (27).wav" id="10_cancel"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1ajee"]
 shader = ExtResource("2_cob4t")
@@ -116,6 +119,11 @@ toggle_mode = true
 theme_override_font_sizes/font_size = 25
 text = "通用设置"
 
+[node name="ButtonEffectModule" type="Node" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/TopTabs/AudioTab"]
+script = ExtResource("8_button_effect")
+press_sound = ExtResource("9_confirm")
+metadata/_custom_type_script = "uid://i3xgym8bhl33"
+
 [node name="ControlsTab" type="Button" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/TopTabs" unique_id=1691251863]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 54)
@@ -124,6 +132,11 @@ size_flags_horizontal = 3
 toggle_mode = true
 theme_override_font_sizes/font_size = 25
 text = "按键设置"
+
+[node name="ButtonEffectModule" type="Node" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/TopTabs/ControlsTab"]
+script = ExtResource("8_button_effect")
+press_sound = ExtResource("9_confirm")
+metadata/_custom_type_script = "uid://i3xgym8bhl33"
 
 [node name="HSeparator" type="HSeparator" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox" unique_id=1636192371]
 layout_mode = 2
@@ -189,6 +202,11 @@ custom_minimum_size = Vector2(320, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ButtonEffectModule" type="Node" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/DisplayModeRow/RowContent/DisplayModeOption"]
+script = ExtResource("8_button_effect")
+press_sound = ExtResource("9_confirm")
+metadata/_custom_type_script = "uid://i3xgym8bhl33"
+
 [node name="Underline" type="ColorRect" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/DisplayModeRow" unique_id=138207576]
 custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
@@ -217,6 +235,11 @@ custom_minimum_size = Vector2(320, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "开启"
+
+[node name="ButtonEffectModule" type="Node" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/VSyncRow/RowContent/VSyncToggle"]
+script = ExtResource("8_button_effect")
+press_sound = ExtResource("9_confirm")
+metadata/_custom_type_script = "uid://i3xgym8bhl33"
 
 [node name="Underline" type="ColorRect" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/VSyncRow" unique_id=1434535820]
 custom_minimum_size = Vector2(0, 1)
@@ -247,6 +270,11 @@ custom_minimum_size = Vector2(320, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "进入全屏"
+
+[node name="ButtonEffectModule" type="Node" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow/RowContent/WebFullscreenButton"]
+script = ExtResource("8_button_effect")
+press_sound = ExtResource("9_confirm")
+metadata/_custom_type_script = "uid://i3xgym8bhl33"
 
 [node name="Underline" type="ColorRect" parent="PanelRoot/OuterMargin/ShellPanel/ShellMargin/MainVBox/Pages/AudioPage/VBoxContainer/PageMargin/GeneralVBox/WebFullscreenRow"]
 custom_minimum_size = Vector2(0, 1)
@@ -561,6 +589,8 @@ grow_horizontal = 1
 grow_vertical = 0
 theme_override_font_sizes/font_size = 30
 text = "返回"
+press_sound = ExtResource("10_cancel")
+press_volume_db = -12.0
 
 [node name="ThanksButton" parent="PanelRoot" unique_id=362932258 instance=ExtResource("6_4xm8e")]
 unique_name_in_owner = true
@@ -578,4 +608,3 @@ grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 30
 text = "感谢"
-

@@ -5,7 +5,7 @@ extends Node
 ##
 ## 演示内容：
 ##   1. 启动模块化对话气球
-##   2. 对话进度自动保存到 DialogueSaveModule
+##   2. 对话进度记录到 NarrativeSlotModule
 ##   3. 存档槽 UI（DialogueSaveSlot）保存/读取/删除
 ##   4. 历史记录面板（DialogueHistoryLog）
 
@@ -17,7 +17,7 @@ extends Node
 
 ## 本地存档系统（演示用，不依赖全局 AutoLoad）
 var _save_system: SaveSystem
-var _dialogue_module: DialogueSaveModule
+var _dialogue_module: NarrativeSlotModule
 var _dialogue_res: DialogueResource
 
 const DIALOGUE_PATH := "res://Dialogue/Examples/demo/demo_dialogue.dialogue"
@@ -38,12 +38,13 @@ func _setup_save_system() -> void:
 	_save_system.auto_load_slot = 0
 	_save_system.game_version = "demo-1.0"
 
-	_dialogue_module = DialogueSaveModule.new()
-	_save_system.register_module(_dialogue_module)
+	_dialogue_module = _save_system.get_module("narrative_slot") as NarrativeSlotModule
+	if _dialogue_module == null:
+		push_error("Demo: NarrativeSlotModule is not registered")
 
 
 func _setup_balloon() -> void:
-	balloon.auto_save_progress = false  # 由本脚本手动控制
+	balloon.track_dialogue_progress = false  # 由本脚本手动控制
 	balloon.chapter_name = "演示章节"
 
 	# 监听对话结束（DialogueManager 信号）
@@ -102,9 +103,10 @@ func _on_save_requested(slot: int) -> void:
 	# 保存当前对话进度到指定槽位
 	if is_instance_valid(balloon) and is_instance_valid(balloon.dialogue_line):
 		var line: DialogueLine = balloon.dialogue_line
-		_dialogue_module.save_progress(
+		_dialogue_module.record_dialogue_progress(
 			balloon.dialogue_resource,
 			line.id,
+			balloon.start_from_title,
 			balloon.chapter_name,
 			line.character,
 			line.text
@@ -121,13 +123,13 @@ func _on_load_requested(slot: int) -> void:
 		_set_status("存档 %d 读取失败" % slot)
 		return
 	# 恢复对话进度
-	if _dialogue_module.has_progress():
+	if _dialogue_module.has_dialogue_progress():
 		var res := _dialogue_module.load_dialogue_resource()
 		if res == null:
 			_set_status("存档 %d 读取成功，但无法加载对话资源" % slot)
 			return
 		balloon.chapter_name = _dialogue_module.chapter_name
-		balloon.start(res, _dialogue_module.dialogue_title, [self])
+		balloon.start(res, _dialogue_module.dialogue_line_id, [self])
 		_set_status("存档 %d 读取成功，继续对话中…" % slot)
 	else:
 		_set_status("存档 %d 读取成功（无对话进度）" % slot)

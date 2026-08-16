@@ -3,9 +3,9 @@ extends ISaveModule
 
 static var instance: NarrativeGlobalModule
 
-var world_flags: Dictionary = {}
+var flags: Dictionary = {}
 var values: Dictionary = {}
-var event_history: Dictionary = {}
+var events: Dictionary = {}
 
 
 # Registers the latest global narrative module instance.
@@ -26,44 +26,44 @@ func is_global() -> bool:
 # Captures global narrative flags, values, and event history for serialization.
 func collect_data() -> Dictionary:
 	return {
-		"world_flags": world_flags.duplicate_deep(true),
+		"flags": flags.duplicate_deep(true),
 		"values": values.duplicate_deep(true),
-		"event_history": event_history.duplicate_deep(true),
+		"events": events.duplicate_deep(true),
 	}
 
 
 # Applies persisted narrative state after validating each dictionary section.
 func apply_data(data: Dictionary) -> void:
-	world_flags = _safe_dict(data.get("world_flags", {}))
+	flags = _safe_dict(data.get("flags", {}))
 	values = _safe_dict(data.get("values", {}))
-	event_history = _safe_dict(data.get("event_history", {}))
+	events = _safe_dict(data.get("events", {}))
 
 
 # Provides an empty first-run payload for global narrative state.
 func get_default_data() -> Dictionary:
 	return {
-		"world_flags": {},
+		"flags": {},
 		"values": {},
-		"event_history": {},
+		"events": {},
 	}
 
 
 # Reads one narrative value from flags, events, or plain value namespaces.
 func get_value(key: String, fallback: Variant = null) -> Variant:
 	if key.begins_with("flags."):
-		return world_flags.get(key.trim_prefix("flags."), fallback)
+		return flags.get(key.trim_prefix("flags."), fallback)
 	if key.begins_with("events."):
-		return event_history.get(key.trim_prefix("events."), fallback)
+		return events.get(key.trim_prefix("events."), fallback)
 	return values.get(key, fallback)
 
 
 # Writes one narrative value to flags, events, or plain value namespaces.
 func set_value(key: String, value: Variant) -> bool:
 	if key.begins_with("flags."):
-		world_flags[key.trim_prefix("flags.")] = value
+		flags[key.trim_prefix("flags.")] = value
 		return true
 	if key.begins_with("events."):
-		event_history[key.trim_prefix("events.")] = value
+		events[key.trim_prefix("events.")] = value
 		return true
 	values[key] = value
 	return true
@@ -72,10 +72,10 @@ func set_value(key: String, value: Variant) -> bool:
 # Clears one narrative value from flags, events, or plain value namespaces.
 func clear_value(key: String) -> bool:
 	if key.begins_with("flags."):
-		world_flags.erase(key.trim_prefix("flags."))
+		flags.erase(key.trim_prefix("flags."))
 		return true
 	if key.begins_with("events."):
-		event_history.erase(key.trim_prefix("events."))
+		events.erase(key.trim_prefix("events."))
 		return true
 	values.erase(key)
 	return true
@@ -83,14 +83,14 @@ func clear_value(key: String) -> bool:
 
 # Checks whether a global narrative event marker has been written.
 func is_event_fired(event_id: String) -> bool:
-	return _is_truthy(event_history.get(event_id, false))
+	return _is_truthy(events.get(event_id, false))
 
 
 # Writes a global narrative event marker.
 func mark_event_fired(event_id: String) -> void:
 	if event_id.is_empty():
 		return
-	event_history[event_id] = true
+	events[event_id] = true
 
 
 # Returns a defensive dictionary copy or an empty dictionary for invalid data.

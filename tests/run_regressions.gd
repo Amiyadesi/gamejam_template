@@ -1,6 +1,8 @@
 extends SceneTree
 
 const TEST_CONTEXT := preload("res://tests/support/test_context.gd")
+const AUDIO_REGRESSIONS := preload("res://tests/audio_regressions.gd")
+const NARRATIVE_REGRESSIONS := preload("res://tests/narrative_regressions.gd")
 const INPUT_REGRESSIONS := preload("res://tests/input_regressions.gd")
 const MODAL_REGRESSIONS := preload("res://tests/modal_regressions.gd")
 const UI_REGRESSIONS := preload("res://tests/ui_regressions.gd")
@@ -17,6 +19,8 @@ func _initialize() -> void:
 # 运行全部回归，并用退出码报告最终结果。
 func _run() -> void:
 	_test_harness_reports_success()
+	await AUDIO_REGRESSIONS.new().run(_context, self)
+	await NARRATIVE_REGRESSIONS.new().run(_context, self)
 	INPUT_REGRESSIONS.new().run(_context)
 	await MODAL_REGRESSIONS.new().run(_context, self)
 	await UI_REGRESSIONS.new().run(_context, self)

@@ -1,7 +1,7 @@
 [gd_scene format=3 ]
 
 [ext_resource type="Script" path="res://Dialogue/Examples/demo/illustration_test_scene.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://Dialogue/Examples/modular_balloon.tscn" id="2_balloon"]
+[ext_resource type="PackedScene" path="res://Dialogue/Runtime/modular_balloon.tscn" id="2_balloon"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.06, 0.06, 0.1, 0.95)
@@ -160,5 +160,4 @@ horizontal_alignment = 1
 [node name="DialogueBalloon" parent="." instance=ExtResource("2_balloon")]
 visible = false
 animation_duration = 0.3
-
 

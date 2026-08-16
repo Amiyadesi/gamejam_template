@@ -26,7 +26,7 @@ func _ready() -> void:
 	_set_status("请选择一个测试场景开始体验")
 
 func _setup_balloon() -> void:
-	balloon.auto_save_progress = false
+	balloon.track_dialogue_progress = false
 	balloon.enable_enter_animation = true
 	balloon.enable_exit_animation = true
 	balloon.animation_duration = 0.3
@@ -93,7 +93,7 @@ func _setup_illustrations() -> void:
 			right_ill.lihui_resource = right_lihui
 
 func _create_test_lihui(name: String, base_color: Color) -> Resource:
-	var script_res = load("res://Dialogue/Examples/simple/lihui.gd")
+	var script_res = load("res://Dialogue/Runtime/simple/lihui.gd")
 	if script_res == null:
 		return null
 	

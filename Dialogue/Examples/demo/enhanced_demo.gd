@@ -29,7 +29,7 @@ func _ready() -> void:
 
 
 func _setup_balloon() -> void:
-	balloon.auto_save_progress = false
+	balloon.track_dialogue_progress = false
 	balloon.enable_enter_animation = true
 	balloon.enable_exit_animation = true
 	#balloon.enter_animation_type = "pop"

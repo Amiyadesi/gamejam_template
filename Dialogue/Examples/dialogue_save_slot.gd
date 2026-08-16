@@ -5,7 +5,7 @@ extends PanelContainer
 ## ════════════════════════════════════════════════════════════════
 ##
 ## 展示单个存档槽的状态（空/已用），并提供保存/读取操作按钮。
-## 配合 DialogueSaveModule + SaveSystem 一起使用。
+## 配合 NarrativeSlotModule + SaveSystem 一起使用。
 ##
 ## 信号：
 ##   save_requested(slot)    用户点击"保存"
@@ -58,7 +58,7 @@ func _ready() -> void:
 # 公共 API
 # ──────────────────────────────────────────────
 
-## 刷新当前槽位的显示（从 SaveSystem 读取 SlotInfo + DialogueSaveModule）
+## 刷新当前槽位的显示（从 SaveSystem 读取 SlotInfo + NarrativeSlotModule）
 func refresh(save_system: Node = null) -> void:
 	_refresh_display(save_system)
 
@@ -103,7 +103,7 @@ func _refresh_display(save_system: Node = null) -> void:
 
 	_time_label.text = info.get_time_string()
 
-	# 尝试临时读取存档中的 dialogue 字段（不改变当前内存状态）
+	# 尝试临时读取存档中的 narrative_slot 字段（不改变当前内存状态）
 	var path: String = "user://saves/slot_%02d.json" % slot_index
 	if FileAccess.file_exists(path):
 		var file := FileAccess.open(path, FileAccess.READ)
@@ -113,7 +113,7 @@ func _refresh_display(save_system: Node = null) -> void:
 			file.close()
 			if err == OK:
 				var data: Dictionary = json.get_data()
-				var d: Dictionary = data.get("dialogue", {})
+				var d: Dictionary = data.get("narrative_slot", {})
 				_chapter_label.text   = d.get("chapter_name",   "未知章节")
 				_character_label.text = d.get("character_name", "")
 				_snippet_label.text   = d.get("dialogue_snippet", "…")

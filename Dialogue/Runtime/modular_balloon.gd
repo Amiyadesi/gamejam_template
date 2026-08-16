@@ -26,7 +26,7 @@ extends BaseBalloon
 @export var history_action: StringName = &"ui_text_submit"
 
 @export_group("Save")
-@export var auto_save_progress: bool = true
+@export var track_dialogue_progress: bool = true
 @export var chapter_name: String = ""
 
 @export_group("Animation")
@@ -255,7 +255,7 @@ func _apply_configuration() -> void:
 	_history_module.max_history_entries = max_history_entries
 	_history_module.history_action = history_action
 
-	_save_module.auto_save_progress = auto_save_progress
+	_save_module.track_dialogue_progress = track_dialogue_progress
 	_save_module.chapter_name = chapter_name
 
 	_character_ui_module.balloon_direction = balloon_direction

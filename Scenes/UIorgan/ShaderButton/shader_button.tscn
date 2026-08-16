@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://dssid7iw4aqb6"]
+[gd_scene load_steps=8 format=3 uid="uid://dssid7iw4aqb6"]
 
 [ext_resource type="Script" uid="uid://c2qtfgumfei5" path="res://Scenes/UIorgan/ShaderButton/shader_button.gd" id="1_q8250"]
 [ext_resource type="Script" uid="uid://i3xgym8bhl33" path="res://Scenes/UIorgan/ButtonEffectModule/button_effect_module.gd" id="2_tc11w"]
 [ext_resource type="Material" uid="uid://b3o26w6ijhf1i" path="res://Scenes/UIorgan/ShaderButton/shader_button.tres" id="3_material"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/confirm_ingame/Fantasy_UI (4).wav" id="4_press"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tuexh"]
 bg_color = Color(0.055, 0.045, 0.038, 0.92)
@@ -48,6 +49,7 @@ theme_override_styles/disabled = SubResource("StyleBoxShaderSurface")
 theme_override_styles/focus = SubResource("StyleBoxNoFocus")
 text = "开始游戏"
 script = ExtResource("1_q8250")
+press_sound = ExtResource("4_press")
 
 [node name="ButtonEffectModule" type="Node" parent="." unique_id=643296376]
 script = ExtResource("2_tc11w")
@@ -81,11 +83,3 @@ scroll_active = false
 autowrap_mode = 0
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="PressAudio" type="AudioStreamPlayer" parent="." unique_id=1798197973]
-bus = &"UI"
-volume_db = -12.0
-
-[node name="SelectAudio" type="AudioStreamPlayer" parent="." unique_id=379967188]
-bus = &"UI"
-volume_db = -18.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://Scenes/UI/Menu/menu.gd" id="1_menu"]
 [ext_resource type="Shader" path="res://resources/shader/god_ray.gdshader" id="2_godray"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/Menu/setting_screen.tscn" id="4_settings"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Menu/thank_screen.tscn" id="5_thanks"]
 [ext_resource type="Theme" uid="uid://136hg33mma1d" path="res://resources/main_theme.tres" id="6_theme"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/confirm_menu/Fantasy_UI (5).wav" id="7_menu_confirm"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/cancel/Fantasy_UI (27).wav" id="8_cancel"]
 
 [sub_resource type="Gradient" id="Gradient_background"]
 offsets = PackedFloat32Array(0, 0.58, 1)
@@ -133,6 +135,8 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(216, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 31
+press_sound = ExtResource("7_menu_confirm")
+press_volume_db = -12.0
 bb_text = "[color=gold]开始"
 
 [node name="SettingButton" parent="ButtonLayer/MenuButtons" instance=ExtResource("3_button")]
@@ -140,6 +144,8 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(216, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 31
+press_sound = ExtResource("7_menu_confirm")
+press_volume_db = -12.0
 bb_text = "[color=yellow]设置"
 
 [node name="ThanksButton" parent="ButtonLayer/MenuButtons" instance=ExtResource("3_button")]
@@ -147,6 +153,8 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(216, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 31
+press_sound = ExtResource("7_menu_confirm")
+press_volume_db = -12.0
 bb_text = "[color=cyan]感谢"
 
 [node name="ExitButton" parent="ButtonLayer/MenuButtons" instance=ExtResource("3_button")]
@@ -154,6 +162,8 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(216, 58)
 layout_mode = 2
 theme_override_font_sizes/font_size = 31
+press_sound = ExtResource("8_cancel")
+press_volume_db = -12.0
 bb_text = "[color=red]退出"
 
 [node name="StatusLabel" type="Label" parent="ButtonLayer"]

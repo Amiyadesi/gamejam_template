@@ -13,6 +13,19 @@ Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, sett
 
 The template intentionally has no gameplay scene. Start stays disabled until `start_scene_path` points to a valid packed scene.
 
+## Copy Checklist
+
+After copying the template into a new game:
+
+1. Change `application/config/name`, icons, boot splash, and export metadata.
+2. Set `Menu.start_scene_path` to a real gameplay `PackedScene`.
+3. Decide whether the copied project needs the bundled `Dialogue/Examples/demo` content and `addons/limboai`; delete them when they are not used.
+4. Keep the five core editor plugins enabled: Dialogue Manager, Enhanced Save System, Richer Text Label, SceneManager, and SoundManager.
+5. Leave Phantom Camera, Simple GUI Transitions, and Project Time Tracker disabled unless the game explicitly adopts them. Re-enable their autoloads only together with their project code.
+6. Run `pwsh ./tools/verify_template.ps1 -ReleaseReadiness -GodotPath <Godot-4.7-console>` before making a release build.
+
+The readiness command intentionally fails while the project still has the template name or an empty `Menu.start_scene_path`.
+
 ## Editor Preview
 
 The menu entry check, `ShaderButton`, and the settings light effect are `@tool` scripts. They preview as soon as their Inspector values change; no editor plugin needs to be enabled.
@@ -34,7 +47,7 @@ Audio, save data, input, transitions, and button presses remain runtime-only so 
 - Audio router: `Scenes/Autoload/game_audio.gd`
 - Feedback overlay: `Scenes/UI/Common/feedback_overlay.tscn`
 - Scene transitions: `resources/scene_transitions/`
-- Dialogue and project save modules: `Dialogue/`, `Scripts/Save/`, and `Config/save_modules.cfg`
+- Dialogue runtime and project save modules: `Dialogue/Runtime/`, `Dialogue/Examples/`, `Scripts/Save/`, and `Config/save_modules.cfg`
 
 Third-party plugins remain under `addons/`. Each plugin keeps its own license.
 
@@ -44,7 +57,7 @@ Third-party plugins remain under `addons/`. Each plugin keeps its own license.
 - Choose the global UI font in `assets/fonts/ui_font.tres`: keep `ui_hd_font.tres` for normal games or set its base font to `ui_pixel_font.tres` for pixel games. Pixel layouts should use 10 px font-size multiples and integer viewport scaling.
 - Restyle `ShaderButton` through its scene, material, and external shader together; its hover and focus outline is shared by mouse, keyboard, and gamepad navigation.
 - Edit the authored menu, settings, credits, and pause scenes for layout or copy changes. Keep their named nodes and script contracts intact.
-- Assign menu music to `Menu.menu_music`, replace the UI audio streams consumed by `GameAudio`, and keep the existing `Master`, `SFX`, `Music`, `Ambient`, and `UI` buses.
+- Assign menu music to `Menu.menu_music`, assign UI streams directly on `ShaderButton`/`ButtonEffectModule` Inspector fields, and keep the existing `Master`, `SFX`, `Music`, `Ambient`, and `UI` buses.
 - Replace the fade resources in `resources/scene_transitions/` if the game needs a different scene-change style.
 - Change `config/name`, icons, boot splash, and export metadata before publishing.
 
@@ -72,6 +85,43 @@ Play menu music through the authored property or the audio router:
 ```gdscript
 GameAudio.play_music("menu", your_stream)
 ```
+
+Project code calls `GameAudio` only. `SoundManager` remains the pooled backend. The facade API is:
+
+```gdscript
+GameAudio.play_music(track_key, stream, 0.6)
+GameAudio.stop_music(0.3)
+GameAudio.play_sfx(stream, -6.0, 1.0)
+GameAudio.play_ui(stream, -12.0, 1.0)
+GameAudio.play_ambient(stream, 0.5, -8.0)
+GameAudio.stop_ambient(stream, 0.3)
+GameAudio.refresh_runtime_volumes()
+```
+
+`track_key` is semantic: calling the same key while it is playing does not restart music. `SettingsModule` emits setting changes, `GameAudio` reads them, and only `GameAudio` writes runtime audio bus volumes. Empty streams are silent. UI sounds belong to the authored control, so a copied game can replace them without editing a singleton.
+
+## Dialogue And Save API
+
+The reusable balloon and all runtime modules live under `Dialogue/Runtime/`. `Dialogue/Examples/` contains only demos, dialogue text, and the demo save-slot UI. The formal save modules are registered in `Config/save_modules.cfg`:
+
+`DialogueManager.show_dialogue_balloon()` is configured to instantiate `Dialogue/Runtime/modular_balloon.tscn`; use the demo scenes when you want a working reference UI.
+
+```gdscript
+var slot_narrative = SaveSystem.get_module("narrative_slot")
+slot_narrative.record_dialogue_progress(
+    dialogue_resource,
+    current_line.id,
+    start_title,
+    "Chapter 1",
+    current_line.character,
+    current_line.text,
+)
+SaveSystem.save_slot()
+```
+
+`NarrativeSlotModule` stores the resource path, exact line id, starting title, chapter, character, and a plain-text snippet. Use `has_dialogue_progress()`, `load_dialogue_resource()`, and `clear_dialogue_progress()` for resume UI. `NarrativeGlobalModule` is limited to cross-slot `flags`, `values`, and `events`.
+
+`ModularBalloon.track_dialogue_progress` (and the matching `SaveModule` property) updates the slot snapshot in memory on each line. It never writes a file. Use explicit `SaveSystem.save_slot()` or the project's periodic autosave policy for persistence.
 
 Use the global feedback overlay for short notices and confirmations:
 
@@ -112,9 +162,11 @@ If `godot` is not on `PATH`, pass the Godot 4.7 console executable explicitly:
 pwsh ./tools/verify_template.ps1 -GodotPath C:/Tools/Godot_v4.7-stable_win64_console.exe
 ```
 
+Add `-ReleaseReadiness` for the release gates and non-blocking LimboAI/demo/Time Tracker reminders.
+
 ## Export
 
-Install the official Godot 4.7 export templates first. Web export must use the standard non-.NET Godot 4.7 editor; Godot's Mono/.NET editor cannot export Web projects. The committed presets target Web without threads or extension support and Windows Desktop:
+Install the official Godot 4.7 export templates first. Web export must use the standard non-.NET Godot 4.7 editor; Godot's Mono/.NET editor cannot export Web projects. The Web preset uses the no-threads variant with GDExtension support enabled so the bundled LimboAI runtime can load:
 
 ```powershell
 New-Item -ItemType Directory -Force build/web, build/windows | Out-Null

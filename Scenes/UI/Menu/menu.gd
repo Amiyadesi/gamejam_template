@@ -36,7 +36,6 @@ func _ready() -> void:
 		return
 	setting_screen.is_in_menu_flag = true
 	_configure_platform_commands()
-	_configure_audio()
 	_connect_signals()
 	_refresh_start_button()
 	SceneManager.transition_start(ENTER_TRANSITION, true)
@@ -54,15 +53,6 @@ func _connect_signals() -> void:
 	setting_screen.thanks_requested.connect(_on_setting_thanks_requested)
 	setting_screen.closed.connect(_on_setting_closed)
 	thank_screen.return_requested.connect(_on_thank_return_requested)
-
-
-# Routes each authored menu command through the shared audio service.
-func _configure_audio() -> void:
-	GameAudio.setup_menu_shader_button(start_button)
-	GameAudio.setup_menu_shader_button(setting_button)
-	GameAudio.setup_menu_shader_button(thanks_button)
-	GameAudio.setup_menu_shader_button(exit_button)
-	GameAudio.setup_plain_button(exit_button, "cancel")
 
 
 # Removes the desktop-only process exit command from Web builds.
