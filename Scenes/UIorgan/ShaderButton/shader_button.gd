@@ -1,3 +1,4 @@
+@tool
 extends Button
 class_name ShaderButton
 ## 着色器风格按钮。
@@ -8,10 +9,22 @@ class_name ShaderButton
 const HIGHLIGHT_GLOW := 0.22
 const HIGHLIGHT_PROGRESS := 1.0
 
-@export var panel_style_box: StyleBox
-@export var outline_color := Color(0.98, 0.72, 0.32, 1.0)
+@export var panel_style_box: StyleBox:
+	set(value):
+		panel_style_box = value
+		if is_node_ready():
+			_sync_panel_style()
+@export var outline_color := Color(0.98, 0.72, 0.32, 1.0):
+	set(value):
+		outline_color = value
+		if is_node_ready():
+			_sync_shader_geometry()
 @export_group("BBcode")
-@export_multiline var bb_text: String
+@export_multiline var bb_text: String:
+	set(value):
+		bb_text = value
+		if is_node_ready():
+			_sync_text()
 
 @onready var text_label: RichTextLabel = $Label
 @onready var panel: Panel = $Panel
@@ -24,27 +37,26 @@ var _original_label_modulate := Color.WHITE
 
 
 func _ready() -> void:
-	if panel_style_box != null:
-		panel.add_theme_stylebox_override("panel", panel_style_box)
-
-	text_label.text = bb_text if not bb_text.is_empty() else text
-	text_label.add_theme_font_size_override("normal_font_size", get_theme_font_size("font_size"))
-	text = ""
-
 	var authored_material := material as ShaderMaterial
 	material = authored_material.duplicate()
 	material.set("shader_parameter/time1", 1.0)
 	material.set("shader_parameter/time2", 0.0)
 	material.set("shader_parameter/center1", Vector2(0.5, 0.5))
 
+	if not resized.is_connected(_sync_shader_geometry):
+		resized.connect(_sync_shader_geometry)
+
+	_original_label_modulate = text_label.modulate
+	_sync_panel_style()
+	_sync_text()
+	_sync_shader_geometry()
+	if Engine.is_editor_hint():
+		return
+
 	pressed.connect(_on_pressed)
 	mouse_entered.connect(_on_mouse_entered)
 	focus_entered.connect(_on_focus_entered)
 	focus_exited.connect(_on_focus_exited)
-	resized.connect(_sync_shader_geometry)
-
-	_original_label_modulate = text_label.modulate
-	_sync_shader_geometry()
 
 
 func _process(_delta: float) -> void:
@@ -57,15 +69,24 @@ func _process(_delta: float) -> void:
 # Replaces the displayed rich text without rebuilding the authored button scene.
 func set_bbtext(bbtext: String) -> void:
 	bb_text = bbtext
-	if text_label != null:
-		text_label.text = bbtext
 
 
 # Applies an authored panel resource supplied by the owning scene.
 func set_panel_box(style_box: StyleBox) -> void:
 	panel_style_box = style_box
-	if panel != null:
-		panel.add_theme_stylebox_override("panel", style_box)
+
+
+# Mirrors the authored text and font size into the visible rich-text child.
+func _sync_text() -> void:
+	text_label.text = bb_text if not bb_text.is_empty() else text
+	text_label.add_theme_font_size_override("normal_font_size", get_theme_font_size("font_size"))
+	text = ""
+
+
+# Applies the optional Inspector style to the authored panel child.
+func _sync_panel_style() -> void:
+	if panel_style_box != null:
+		panel.add_theme_stylebox_override("panel", panel_style_box)
 
 
 # Returns pooled buttons to their neutral interaction state.

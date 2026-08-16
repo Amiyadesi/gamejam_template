@@ -1,6 +1,7 @@
 extends RefCounted
 
 const SHADER_BUTTON_SCENE := preload("res://Scenes/UIorgan/ShaderButton/shader_button.tscn")
+const LOCAL_LIGHT_VFX_SCRIPT := preload("res://Scenes/UI/Menu/setting_local_light_vfx.gd")
 const ACTIVE_UI_FONT := preload("res://assets/fonts/ui_font.tres")
 const HD_UI_FONT := preload("res://assets/fonts/ui_hd_font.tres")
 const PIXEL_UI_FONT := preload("res://assets/fonts/ui_pixel_font.tres")
@@ -8,10 +9,38 @@ const PIXEL_UI_FONT := preload("res://assets/fonts/ui_pixel_font.tres")
 
 # 运行可复用 UI 的交互、字体、主题与鼠标穿透回归。
 func run(context, tree: SceneTree) -> void:
+	await _expect_editor_previews_update_immediately(context, tree)
 	await _expect_hover_moves_focus(context, tree)
 	_expect_bundled_font_profiles(context)
 	_expect_feedback_overlay_uses_authored_theme(context, tree)
 	await _expect_toast_overlay_ignores_pointer_input(context, tree)
+
+
+# Verifies reusable Inspector changes are visible without running the game.
+func _expect_editor_previews_update_immediately(context, tree: SceneTree) -> void:
+	var button := SHADER_BUTTON_SCENE.instantiate() as ShaderButton
+	tree.root.add_child(button)
+	await tree.process_frame
+
+	button.bb_text = "[b]Preview[/b]"
+	button.outline_color = Color.CORNFLOWER_BLUE
+	context.expect_equal(
+		(button.get_node("Label") as RichTextLabel).text,
+		"[b]Preview[/b]",
+		"ShaderButton Inspector text should update its visible label immediately"
+	)
+	context.expect_equal(
+		(button.material as ShaderMaterial).get("shader_parameter/color"),
+		Color.CORNFLOWER_BLUE,
+		"ShaderButton Inspector outline color should update immediately"
+	)
+	var local_light_vfx := LOCAL_LIGHT_VFX_SCRIPT.new() as Control
+	context.expect_true(button.get_script().is_tool(), "ShaderButton should preview inside the editor")
+	context.expect_true(local_light_vfx.get_script().is_tool(), "settings lights should preview inside the editor")
+
+	local_light_vfx.free()
+	button.queue_free()
+	await tree.process_frame
 
 
 # Verifies pointer focus, exclusive selection, label sizing, and disabled behavior.

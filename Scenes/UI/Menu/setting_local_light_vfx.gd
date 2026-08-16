@@ -1,6 +1,11 @@
+@tool
 extends Control
 
-@export_range(0.0, 1.0, 0.01) var intensity: float = 0.82
+@export_range(0.0, 1.0, 0.01) var intensity: float = 0.82:
+	set(value):
+		intensity = value
+		if is_node_ready():
+			_sync_light_positions()
 
 @onready var _key_light: PointLight2D = $KeyLight
 @onready var _accent_light: PointLight2D = $AccentLight
@@ -17,7 +22,8 @@ func _ready() -> void:
 	_key_light.shadow_enabled = false
 	_accent_light.shadow_enabled = false
 	_sync_rect_size()
-	resized.connect(_sync_rect_size)
+	if not resized.is_connected(_sync_rect_size):
+		resized.connect(_sync_rect_size)
 	set_process(true)
 
 
@@ -26,6 +32,7 @@ func _process(delta: float) -> void:
 	_sync_light_positions()
 
 
+# Recalculates the preview bounds after the authored Control resizes.
 func _sync_rect_size() -> void:
 	_rect_size = size
 	if _rect_size.x <= 0.0 or _rect_size.y <= 0.0:
@@ -33,6 +40,7 @@ func _sync_rect_size() -> void:
 	_sync_light_positions()
 
 
+# Positions and pulses both lights from the same editor/runtime formula.
 func _sync_light_positions() -> void:
 	var key_base := Vector2(_rect_size.x * 0.29, _rect_size.y * 0.25)
 	var accent_base := Vector2(_rect_size.x * 0.76, _rect_size.y * 0.43)

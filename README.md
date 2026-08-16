@@ -13,6 +13,16 @@ Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, sett
 
 The template intentionally has no gameplay scene. Start stays disabled until `start_scene_path` points to a valid packed scene.
 
+## Editor Preview
+
+The menu entry check, `ShaderButton`, and the settings light effect are `@tool` scripts. They preview as soon as their Inspector values change; no editor plugin needs to be enabled.
+
+- On a `ShaderButton`, edit `BBcode > Bb Text`, `Panel Style Box`, or `Outline Color` to update the visible label, panel, and shader outline in the editor.
+- On the root `Menu`, change `start_scene_path` to update the Start button and its validation message immediately.
+- In settings, credits, or pause scenes, change `SettingLocalLightVFX.intensity` to preview the moving lights directly in the 2D viewport.
+
+Audio, save data, input, transitions, and button presses remain runtime-only so editor previews cannot mutate game state.
+
 ## Included Systems
 
 - Main menu: `Scenes/UI/Menu/menu.tscn`

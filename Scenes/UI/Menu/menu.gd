@@ -1,3 +1,4 @@
+@tool
 extends Control
 
 signal start_requested
@@ -10,7 +11,11 @@ enum CreditsOrigin {
 const EXIT_TRANSITION := preload("res://resources/scene_transitions/stage_exit_fade_to_black.tres")
 const ENTER_TRANSITION := preload("res://resources/scene_transitions/stage_enter_fade_to_black.tres")
 
-@export_file("*.tscn") var start_scene_path := ""
+@export_file("*.tscn") var start_scene_path := "":
+	set(value):
+		start_scene_path = value
+		if is_node_ready():
+			_refresh_start_button()
 @export var menu_music: AudioStream
 
 @onready var start_button: ShaderButton = %StartButton
@@ -26,6 +31,9 @@ var _settings_tab_before_credits := 0
 
 
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		_refresh_start_button()
+		return
 	setting_screen.is_in_menu_flag = true
 	_configure_platform_commands()
 	_configure_audio()
