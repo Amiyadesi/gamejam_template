@@ -3,7 +3,7 @@ extends BaseBalloon
 
 @export_group("Dialogue")
 @export var dialogue_resource: DialogueResource
-@export var start_from_title: String = ""
+@export var start_from_cue: String = ""
 @export var auto_start: bool = false
 @export var will_block_other_input: bool = true
 
@@ -94,7 +94,7 @@ func _ready() -> void:
 	if is_instance_valid(_center_illustration):
 		_center_illustration.hide()
 	if auto_start and dialogue_resource != null:
-		start(dialogue_resource, start_from_title)
+		start(dialogue_resource, start_from_cue)
 
 func _process(_delta: float) -> void:
 	var line := get_current_line()
@@ -117,18 +117,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 # Starts dialogue and enables status updates only for the active run.
-func start(with_dialogue_resource: DialogueResource = null, title: String = "", extra_states: Array = []) -> void:
+func start(with_dialogue_resource: DialogueResource = null, cue: String = "", extra_states: Array = []) -> void:
 	if with_dialogue_resource != null:
 		dialogue_resource = with_dialogue_resource
-	if title != "":
-		start_from_title = title
+	if cue != "":
+		start_from_cue = cue
 	if dialogue_resource == null:
 		push_error("ModularBalloon: dialogue_resource is required")
 		return
 	_apply_configuration()
 	set_process(true)
 	show()
-	super.start(dialogue_resource, start_from_title, extra_states)
+	super.start(dialogue_resource, start_from_cue, extra_states)
 
 func toggle_auto_advance() -> void:
 	if is_instance_valid(_flow_module):
@@ -282,7 +282,7 @@ func _sync_toolbar() -> void:
 	if is_instance_valid(_auto_advance_button):
 		_auto_advance_button.set_pressed_no_signal(_flow_module.auto_advance)
 
-func _on_dialogue_started(_resource: DialogueResource, _title: String) -> void:
+func _on_dialogue_started(_resource: DialogueResource, _cue: String) -> void:
 	show()
 	_balloon_control.show()
 	_responses_menu.hide()

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.0-beta.2 - 2026-08-17
+
+### Changed
+
+- Upgraded Dialogue Manager from 3.10.4 to 4.0.2 and migrated project-owned dialogue progress terminology from titles to cues.
+- Upgraded SoundManager from 2.6.1 to 2.6.2 while retaining the template's ambient, autoload, authored bus, and pooled-player compatibility patches.
+- Updated Dialogue Manager import metadata from importer version 15 to 18.
+
+### Added
+
+- Ambient audio regressions for target volume, authored bus selection, pooled-player reuse, and fade retargeting.
+
+### Fixed
+
+- Fresh headless editor imports now give Dialogue Manager 4 a default code font size until `EditorSettings` initializes the persisted value.
+- SoundManager's currently-playing music-track query now calls the correct backend method.
+
 ## 0.1.0-beta.1 - 2026-08-17
 
 ### Added

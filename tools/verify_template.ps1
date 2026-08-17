@@ -68,10 +68,11 @@ function Invoke-ProjectChecks {
 	$warnings = [System.Collections.Generic.List[string]]::new()
 	$projectText = Get-Content -LiteralPath (Join-Path $repoRoot "project.godot") -Raw
 	$menuText = Get-Content -LiteralPath (Join-Path $repoRoot "Scenes/UI/Menu/menu.tscn") -Raw
+	$exportPresetText = Get-Content -LiteralPath (Join-Path $repoRoot "export_presets.cfg") -Raw
 
 	if ($TemplateMode) {
-		if ($projectText -notmatch 'config/version="0\.1\.0-beta\.1"') {
-			$failures.Add("project.godot does not declare template version 0.1.0-beta.1.")
+		if ($projectText -notmatch 'config/version="0\.1\.0-beta\.2"') {
+			$failures.Add("project.godot does not declare template version 0.1.0-beta.2.")
 		}
 		$requiredTemplatePaths = @(
 			"CHANGELOG.md",
@@ -97,6 +98,10 @@ function Invoke-ProjectChecks {
 			if ($projectText -notmatch [regex]::Escape($pluginPath)) {
 				$failures.Add("Core editor plugin is not enabled: $pluginPath")
 			}
+		}
+		$dotnetDialogueScene = "addons/dialogue_manager/nodes/dialogue_label/DialogueLabel.tscn"
+		if ([regex]::Matches($exportPresetText, [regex]::Escape($dotnetDialogueScene)).Count -lt 3) {
+			$failures.Add("All release presets must exclude the Dialogue Manager C# label scene.")
 		}
 	} else {
 		if ($projectText -match 'config/name="Game Jam Template"') {

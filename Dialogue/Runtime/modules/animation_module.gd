@@ -48,7 +48,7 @@ func _ready() -> void:
 func get_module_name() -> String:
 	return "animation"
 
-func on_dialogue_started(_resource: DialogueResource, _title: String) -> void:
+func on_dialogue_started(_resource: DialogueResource, _cue: String) -> void:
 	if not is_instance_valid(balloon_control):
 		return
 	

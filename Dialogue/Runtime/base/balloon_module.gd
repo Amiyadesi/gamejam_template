@@ -54,7 +54,7 @@ func get_module_name() -> String:
 # ════════════════════════════════════════════════════════════════
 
 ## 对话开始时调用
-func on_dialogue_started(_resource: DialogueResource, _title: String) -> void:
+func on_dialogue_started(_resource: DialogueResource, _cue: String) -> void:
 	pass
 
 ## 对话行变化时调用

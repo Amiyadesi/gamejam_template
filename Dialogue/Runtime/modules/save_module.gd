@@ -19,7 +19,7 @@ extends BalloonModule
 # ════════════════════════════════════════════════════════════════
 
 var _current_resource: DialogueResource = null
-var _current_title: String = ""
+var _current_cue: String = ""
 
 # ════════════════════════════════════════════════════════════════
 # BalloonModule 接口
@@ -29,10 +29,10 @@ var _current_title: String = ""
 func get_module_name() -> String:
 	return "save"
 
-# Captures the active dialogue resource and starting title.
-func on_dialogue_started(resource: DialogueResource, _title: String) -> void:
+# Captures the active dialogue resource and starting cue.
+func on_dialogue_started(resource: DialogueResource, cue: String) -> void:
 	_current_resource = resource
-	_current_title = _title
+	_current_cue = cue
 
 # Tracks each line in memory without writing a save file.
 func on_dialogue_line_changed(line: DialogueLine) -> void:
@@ -43,7 +43,7 @@ func on_dialogue_line_changed(line: DialogueLine) -> void:
 # Clears the transient dialogue context when the balloon ends.
 func on_dialogue_ended() -> void:
 	_current_resource = null
-	_current_title = ""
+	_current_cue = ""
 
 # ════════════════════════════════════════════════════════════════
 # 内部方法
@@ -66,7 +66,7 @@ func _track_progress(line: DialogueLine) -> void:
 	module.call("record_dialogue_progress",
 		_current_resource,
 		line.id,
-		_current_title,
+		_current_cue,
 		chapter_name,
 		line.character,
 		line.text

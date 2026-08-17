@@ -20,7 +20,7 @@ var events: Dictionary = {}
 var stage_states: Dictionary = {}
 var dialogue_resource_path: String = ""
 var dialogue_line_id: String = ""
-var dialogue_title: String = ""
+var dialogue_cue: String = ""
 var chapter_name: String = ""
 var character_name: String = ""
 var dialogue_snippet: String = ""
@@ -55,7 +55,7 @@ func collect_data() -> Dictionary:
 		"stage_states": stage_states.duplicate(true),
 		"dialogue_resource_path": dialogue_resource_path,
 		"dialogue_line_id": dialogue_line_id,
-		"dialogue_title": dialogue_title,
+		"dialogue_cue": dialogue_cue,
 		"chapter_name": chapter_name,
 		"character_name": character_name,
 		"dialogue_snippet": dialogue_snippet,
@@ -78,7 +78,7 @@ func apply_data(data: Dictionary) -> void:
 	stage_states = _normalize_stage_states(data.get("stage_states", {}))
 	dialogue_resource_path = str(data.get("dialogue_resource_path", ""))
 	dialogue_line_id = str(data.get("dialogue_line_id", ""))
-	dialogue_title = str(data.get("dialogue_title", ""))
+	dialogue_cue = str(data.get("dialogue_cue", ""))
 	chapter_name = str(data.get("chapter_name", ""))
 	character_name = str(data.get("character_name", ""))
 	dialogue_snippet = str(data.get("dialogue_snippet", ""))
@@ -101,7 +101,7 @@ func get_default_data() -> Dictionary:
 		},
 		"dialogue_resource_path": "",
 		"dialogue_line_id": "",
-		"dialogue_title": "",
+		"dialogue_cue": "",
 		"chapter_name": "",
 		"character_name": "",
 		"dialogue_snippet": "",
@@ -117,13 +117,13 @@ func on_new_game() -> void:
 func record_dialogue_progress(
 		resource_or_path: Variant,
 		line_id: String,
-		title: String = "",
+		cue: String = "",
 		chapter: String = "",
 		character: String = "",
 		snippet: String = "") -> void:
 	dialogue_resource_path = _resource_path_from(resource_or_path)
 	dialogue_line_id = line_id
-	dialogue_title = title
+	dialogue_cue = cue
 	chapter_name = chapter
 	character_name = character
 	dialogue_snippet = _plain_text(snippet).left(60)
@@ -133,7 +133,7 @@ func record_dialogue_progress(
 func clear_dialogue_progress() -> void:
 	dialogue_resource_path = ""
 	dialogue_line_id = ""
-	dialogue_title = ""
+	dialogue_cue = ""
 	chapter_name = ""
 	character_name = ""
 	dialogue_snippet = ""

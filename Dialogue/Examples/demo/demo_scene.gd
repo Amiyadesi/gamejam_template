@@ -106,7 +106,7 @@ func _on_save_requested(slot: int) -> void:
 		_dialogue_module.record_dialogue_progress(
 			balloon.dialogue_resource,
 			line.id,
-			balloon.start_from_title,
+			balloon.start_from_cue,
 			balloon.chapter_name,
 			line.character,
 			line.text

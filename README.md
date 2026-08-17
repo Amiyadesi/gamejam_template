@@ -2,7 +2,7 @@
 
 Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, settings, credits, pause UI, input rebinding, save modules, audio routing, feedback overlays, and scene transitions without prescribing gameplay.
 
-Current template release: **0.1.0-beta.1** (`v0.1.0-beta.1`).
+Current template release: **0.1.0-beta.2** (`v0.1.0-beta.2`).
 
 ## Quick Start
 
@@ -57,11 +57,11 @@ Third-party plugins remain under `addons/`. Bundled upstream license files remai
 
 | Plugin | Version | Default | Purpose | Upgrade source |
 | --- | --- | --- | --- | --- |
-| Dialogue Manager | 3.10.4 | Enabled | Dialogue resources, runtime parsing, balloon integration | [v3.10.4](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v3.10.4) |
+| Dialogue Manager | 4.0.2 | Enabled | Dialogue resources, runtime parsing, balloon integration | [v4.0.2](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v4.0.2) |
 | Enhanced Save System | 2.0.0 | Enabled | Slot/global modules, settings, input persistence | Bundled project version |
 | Richer Text Label | 1.14 | Enabled | Rich text effects and project font picker | [v1.14](https://github.com/chairfull/GodotRichTextLabel2/releases/tag/v1.14) |
 | SceneManager | 2.0 | Enabled | Scene changes, fades, modal transitions | [Upstream](https://github.com/m-canton/godot-scene-manager) |
-| SoundManager | 2.6.1 | Enabled | Pooled SFX/UI/ambient/music backend | [v2.6.1](https://github.com/nathanhoad/godot_sound_manager/releases/tag/v2.6.1) |
+| SoundManager | 2.6.2 | Enabled | Pooled SFX/UI/ambient/music backend | [v2.6.2](https://github.com/nathanhoad/godot_sound_manager/releases/tag/v2.6.2) |
 | LimboAI | 1.8.0 | Loaded GDExtension | Behavior trees, HSM, debugger, tutorial demo | [v1.8.0](https://github.com/limbonaut/limboai/releases/tag/v1.8.0) |
 | Phantom Camera | 0.11.0.1 | Disabled | Optional 2D/3D camera rigs | [Upstream](https://github.com/ramokz/phantom-camera) |
 | Simple GUI Transitions | 0.4.3 | Disabled | Optional standalone GUI transitions | [v0.4.3](https://github.com/murikistudio/simple-gui-transitions/releases/tag/v0.4.3) |
@@ -77,7 +77,9 @@ LimboAI does not use an editor-plugin toggle here; Godot loads its GDExtension w
 - LimboAI showcase and tutorial button: `demo/scenes/showcase.tscn`
 - LimboAI playable scene: `demo/scenes/game.tscn`
 
-Beta upgrade trials are deliberately conservative. Dialogue Manager 4.0.2 was rejected because a clean Godot 4.7.1 editor parse fails in `DMThemeValues._init()` with a `Nil` to `int` assignment. SoundManager 2.6.2 passes parsing and general regressions, but drops the template's ambient target-volume fade contract, so this beta stays on patched 2.6.1.
+Dialogue Manager 4 uses **cues** where version 3 used titles. Response conditions are self-closing (`[if condition /]`), `DialogueLine.translation_key` is now `static_id`, and `DialogueResource.raw_text` was removed. The project runtime and narrative snapshot API use cue terminology.
+
+SoundManager 2.6.2 separates UI volume from gameplay SFX and fixes `get_currently_playing_music_tracks()`. The template keeps its project-specific ambient target-volume, autoload, authored bus, and player-pool patches.
 
 ## Reskin Checklist
 
@@ -147,7 +149,7 @@ slot_narrative.record_dialogue_progress(
 SaveSystem.save_slot()
 ```
 
-`NarrativeSlotModule` stores the resource path, exact line id, starting title, chapter, character, and a plain-text snippet. Use `has_dialogue_progress()`, `load_dialogue_resource()`, and `clear_dialogue_progress()` for resume UI. `NarrativeGlobalModule` is limited to cross-slot `flags`, `values`, and `events`.
+`NarrativeSlotModule` stores the resource path, exact line id, starting cue, chapter, character, and a plain-text snippet. Use `has_dialogue_progress()`, `load_dialogue_resource()`, and `clear_dialogue_progress()` for resume UI. `NarrativeGlobalModule` is limited to cross-slot `flags`, `values`, and `events`.
 
 `ModularBalloon.track_dialogue_progress` (and the matching `SaveModule` property) updates the slot snapshot in memory on each line. It never writes a file. Use explicit `SaveSystem.save_slot()` or the project's periodic autosave policy for persistence.
 
@@ -209,7 +211,7 @@ $godotStandard = "C:/Tools/Godot_v4.7-stable_win64_console.exe"
 & $godotStandard --headless --path . --export-release "Windows Desktop" "build/windows/GameJamTemplate.exe"
 ```
 
-All presets keep `all_resources` for dynamic `preload()`, autoload, and `class_name` dependencies, while excluding addon editor UI and bundled examples that are not needed at runtime.
+All presets keep `all_resources` for dynamic `preload()`, autoload, and `class_name` dependencies, while excluding addon editor UI, Dialogue Manager's C#-only scene, and bundled examples that are not needed at runtime.
 
 ### Optional Smaller Windows Export
 
@@ -240,8 +242,8 @@ This template deliberately patches four bundled addons:
 
 - **Enhanced Save System 2.0.0:** complete keyboard, mouse, and joypad event serialization; legacy wildcard-device fallback; stable in-place rebinding; and exact, device-aware conflict detection.
 - **SceneManager 2.0:** modal backdrops close from their current open progress, so closing during the opening animation neither jumps to fully open nor uses the wrong duration.
-- **Dialogue Manager 3.10.4:** fresh headless imports tolerate the editor cache timer not existing yet, and font setup falls back to Godot's default size until `EditorSettings` creates its persisted key.
-- **SoundManager 2.6.1:** ambient playback keeps authored bus detection, supports per-stream target volume during fades, and safely prunes invalid pooled players.
+- **Dialogue Manager 4.0.2:** fresh headless imports fall back to Godot's default code font size until `EditorSettings` creates its persisted key.
+- **SoundManager 2.6.2:** existing autoloads are preserved; ambient playback keeps authored bus detection and per-stream target volume; pooled players safely prune invalid references.
 
 Replacing any patched addon directory during an upgrade will remove these changes. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.
 

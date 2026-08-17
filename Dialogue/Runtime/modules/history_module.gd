@@ -31,7 +31,7 @@ var character_manager: CharacterManager
 func get_module_name() -> String:
 	return "history"
 
-func on_dialogue_started(_resource: DialogueResource, _title: String) -> void:
+func on_dialogue_started(_resource: DialogueResource, _cue: String) -> void:
 	if not history_enabled or not is_instance_valid(history_log):
 		return
 	

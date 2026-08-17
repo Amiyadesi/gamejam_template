@@ -190,7 +190,7 @@ func get_currently_playing_music() -> Array:
 
 
 func get_currently_playing_music_tracks() -> Array:
-	return music.get_current_tracks()
+	return music.get_currently_playing_tracks()
 
 
 func pause_music(resource: AudioStream = null) -> void:
@@ -215,6 +215,8 @@ func set_default_music_bus(bus: String) -> void:
 
 
 func _show_shared_bus_warning() -> void:
+	if "Master" in [music.bus, sound_effects.bus, ui_sound_effects.bus, ambient_sounds.bus]:
+		push_warning("Using the Master sound bus directly isn't recommended.")
 	if music.bus == sound_effects.bus or music.bus == ui_sound_effects.bus:
 		push_warning("Both music and sounds are using the same bus: %s" % music.bus)
 

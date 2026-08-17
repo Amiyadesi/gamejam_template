@@ -16,7 +16,7 @@ extends CanvasLayer
 ## ════════════════════════════════════════════════════════════════
 
 ## 对话开始信号
-signal dialogue_started(resource: DialogueResource, title: String)
+signal dialogue_started(resource: DialogueResource, cue: String)
 ## 对话行变化信号
 signal dialogue_line_changed(line: DialogueLine)
 ## 对话结束信号
@@ -73,7 +73,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## 开始对话
 func start(
 		resource: DialogueResource,
-		title: String = "",
+		cue: String = "",
 		extra_states: Array = []) -> void:
 	if resource == null:
 		push_error("BaseBalloon: 对话资源为空，无法开始对话")
@@ -86,13 +86,13 @@ func start(
 	_will_hide_balloon = false
 	
 	# 通知所有模块对话开始
-	_dispatch_to_modules("on_dialogue_started", [resource, title])
+	_dispatch_to_modules("on_dialogue_started", [resource, cue])
 	
 	# 发出信号
-	dialogue_started.emit(resource, title)
+	dialogue_started.emit(resource, cue)
 	
 	# 获取第一行对话
-	_current_line = await resource.get_next_dialogue_line(title, _temporary_game_states)
+	_current_line = await resource.get_next_dialogue_line(cue, _temporary_game_states)
 	if _current_line == null:
 		_end_dialogue()
 		return

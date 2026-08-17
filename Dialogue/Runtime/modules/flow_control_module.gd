@@ -67,7 +67,7 @@ var _line_serial: int = 0
 func get_module_name() -> String:
 	return "flow_control"
 
-func on_dialogue_started(_resource: DialogueResource, _title: String) -> void:
+func on_dialogue_started(_resource: DialogueResource, _cue: String) -> void:
 	_is_auto_advancing = false
 	_auto_advance_timer = 0.0
 	_is_waiting_for_input = false
