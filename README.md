@@ -2,6 +2,8 @@
 
 Godot 4.7 GDScript-only starter for game jams. It provides a reusable menu, settings, credits, pause UI, input rebinding, save modules, audio routing, feedback overlays, and scene transitions without prescribing gameplay.
 
+Current template release: **0.1.0-beta.1** (`v0.1.0-beta.1`).
+
 ## Quick Start
 
 1. Open the repository with Godot 4.7 and let imports finish.
@@ -49,7 +51,33 @@ Audio, save data, input, transitions, and button presses remain runtime-only so 
 - Scene transitions: `resources/scene_transitions/`
 - Dialogue runtime and project save modules: `Dialogue/Runtime/`, `Dialogue/Examples/`, `Scripts/Save/`, and `Config/save_modules.cfg`
 
-Third-party plugins remain under `addons/`. Each plugin keeps its own license.
+Third-party plugins remain under `addons/`. Bundled upstream license files remain authoritative; the project-owned Enhanced Save System is covered by the root MIT license.
+
+## Plugin Matrix
+
+| Plugin | Version | Default | Purpose | Upgrade source |
+| --- | --- | --- | --- | --- |
+| Dialogue Manager | 3.10.4 | Enabled | Dialogue resources, runtime parsing, balloon integration | [v3.10.4](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v3.10.4) |
+| Enhanced Save System | 2.0.0 | Enabled | Slot/global modules, settings, input persistence | Bundled project version |
+| Richer Text Label | 1.14 | Enabled | Rich text effects and project font picker | [v1.14](https://github.com/chairfull/GodotRichTextLabel2/releases/tag/v1.14) |
+| SceneManager | 2.0 | Enabled | Scene changes, fades, modal transitions | [Upstream](https://github.com/m-canton/godot-scene-manager) |
+| SoundManager | 2.6.1 | Enabled | Pooled SFX/UI/ambient/music backend | [v2.6.1](https://github.com/nathanhoad/godot_sound_manager/releases/tag/v2.6.1) |
+| LimboAI | 1.8.0 | Loaded GDExtension | Behavior trees, HSM, debugger, tutorial demo | [v1.8.0](https://github.com/limbonaut/limboai/releases/tag/v1.8.0) |
+| Phantom Camera | 0.11.0.1 | Disabled | Optional 2D/3D camera rigs | [Upstream](https://github.com/ramokz/phantom-camera) |
+| Simple GUI Transitions | 0.4.3 | Disabled | Optional standalone GUI transitions | [v0.4.3](https://github.com/murikistudio/simple-gui-transitions/releases/tag/v0.4.3) |
+| Project Time Tracker | 2.0.8 | Disabled | Optional editor time statistics in `user://` | Bundled plugin folder |
+
+LimboAI does not use an editor-plugin toggle here; Godot loads its GDExtension when the project opens. If a copied game does not need AI, delete both `addons/limboai` and `demo`.
+
+### Demo Entrypoints
+
+- Dialogue basics: `Dialogue/Examples/demo/demo_scene.tscn`
+- Dialogue modules and history: `Dialogue/Examples/demo/enhanced_demo.tscn`
+- Dialogue illustrations: `Dialogue/Examples/demo/illustration_test_scene.tscn`
+- LimboAI showcase and tutorial button: `demo/scenes/showcase.tscn`
+- LimboAI playable scene: `demo/scenes/game.tscn`
+
+Beta upgrade trials are deliberately conservative. Dialogue Manager 4.0.2 was rejected because a clean Godot 4.7.1 editor parse fails in `DMThemeValues._init()` with a `Nil` to `int` assignment. SoundManager 2.6.2 passes parsing and general regressions, but drops the template's ambient target-volume fade contract, so this beta stays on patched 2.6.1.
 
 ## Reskin Checklist
 
@@ -156,13 +184,19 @@ Run the complete local verification with one command:
 pwsh ./tools/verify_template.ps1
 ```
 
+Before tagging this template repository, include bundled demo smoke tests and template-specific release checks:
+
+```powershell
+pwsh ./tools/verify_template.ps1 -TemplateRelease
+```
+
 If `godot` is not on `PATH`, pass the Godot 4.7 console executable explicitly:
 
 ```powershell
 pwsh ./tools/verify_template.ps1 -GodotPath C:/Tools/Godot_v4.7-stable_win64_console.exe
 ```
 
-Add `-ReleaseReadiness` for the release gates and non-blocking LimboAI/demo/Time Tracker reminders.
+Add `-ReleaseReadiness` after copying the template into a real game. It rejects the default project name, a missing gameplay entry, and `res://.godot/` references while keeping LimboAI/demo/Time Tracker reminders non-blocking.
 
 ## Export
 
@@ -202,11 +236,12 @@ Then open `http://127.0.0.1:8000/`.
 
 ## Local Addon Patches
 
-This template deliberately patches three bundled addons:
+This template deliberately patches four bundled addons:
 
 - **Enhanced Save System 2.0.0:** complete keyboard, mouse, and joypad event serialization; legacy wildcard-device fallback; stable in-place rebinding; and exact, device-aware conflict detection.
 - **SceneManager 2.0:** modal backdrops close from their current open progress, so closing during the opening animation neither jumps to fully open nor uses the wrong duration.
-- **Dialogue Manager 3.10.4:** a fresh headless editor falls back to Godot's default code font size until `EditorSettings` creates its persisted font-size key.
+- **Dialogue Manager 3.10.4:** fresh headless imports tolerate the editor cache timer not existing yet, and font setup falls back to Godot's default size until `EditorSettings` creates its persisted key.
+- **SoundManager 2.6.1:** ambient playback keeps authored bus detection, supports per-stream target volume during fades, and safely prunes invalid pooled players.
 
 Replacing any patched addon directory during an upgrade will remove these changes. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.
 

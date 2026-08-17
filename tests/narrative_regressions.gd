@@ -5,11 +5,14 @@ const GLOBAL_SCRIPT: Script = preload("res://Scripts/Save/Modules/narrative_glob
 const SAVE_MODULE_SCRIPT: Script = preload("res://Dialogue/Runtime/modules/save_module.gd")
 const DIALOGUE_LINE_SCRIPT: Script = preload("res://addons/dialogue_manager/dialogue_line.gd")
 const DIALOGUE_RESOURCE: DialogueResource = preload("res://Dialogue/Examples/demo/demo_dialogue.dialogue")
+const BALLOON_SCENE: PackedScene = preload("res://Dialogue/Runtime/modular_balloon.tscn")
 
 
 # Runs the exact dialogue snapshot and memory-only tracking regressions.
 func run(context, tree: SceneTree) -> void:
 	_expect_runtime_balloon_is_configured(context)
+	_expect_dialogue_cache_handles_first_import(context)
+	await _expect_balloon_processing_follows_dialogue(context, tree)
 	_expect_slot_snapshot_round_trip(context)
 	_expect_global_scope_only_keeps_flags_values_events(context)
 	await _expect_line_tracking_does_not_write_disk(context, tree)
@@ -27,6 +30,29 @@ func _expect_runtime_balloon_is_configured(context) -> void:
 		ResourceLoader.exists(balloon_path),
 		"the configured runtime balloon scene should exist"
 	)
+
+
+# Keeps clean-project imports safe before the editor plugin creates its timer.
+func _expect_dialogue_cache_handles_first_import(context) -> void:
+	DMCache.add_file(DIALOGUE_RESOURCE.resource_path)
+	DMCache._on_dependency_timer_timeout()
+	context.expect_true(DMCache.has_file(DIALOGUE_RESOURCE.resource_path), "Dialogue cache should accept imports before its editor timer exists")
+
+
+# Keeps the balloon idle between conversations and active while dialogue is running.
+func _expect_balloon_processing_follows_dialogue(context, tree: SceneTree) -> void:
+	var balloon := BALLOON_SCENE.instantiate() as ModularBalloon
+	tree.root.add_child(balloon)
+	await tree.process_frame
+	context.expect_true(not balloon.is_processing(), "ModularBalloon should not process while idle")
+	balloon.start(DIALOGUE_RESOURCE, "start")
+	await tree.process_frame
+	context.expect_true(balloon.is_processing(), "ModularBalloon should process during dialogue")
+	balloon.force_end()
+	await tree.process_frame
+	context.expect_true(not balloon.is_processing(), "ModularBalloon should stop processing after dialogue")
+	balloon.queue_free()
+	await tree.process_frame
 
 
 # Verifies exact line restoration, plain-text summaries, and clear behavior.

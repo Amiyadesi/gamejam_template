@@ -38,6 +38,7 @@ var _press_tween: Tween
 var _highlight_tween: Tween
 var _has_selection_focus := false
 var _was_disabled := false
+var _last_modulate_alpha := -1.0
 var _original_label_modulate := Color.WHITE
 
 
@@ -68,7 +69,10 @@ func _process(_delta: float) -> void:
 	if disabled != _was_disabled:
 		_was_disabled = disabled
 		_update_highlight()
-	modulate.a = 0.46 if disabled else 1.0
+	var target_alpha := 0.46 if disabled else 1.0
+	if not is_equal_approx(_last_modulate_alpha, target_alpha):
+		_last_modulate_alpha = target_alpha
+		modulate.a = target_alpha
 
 
 # Replaces the displayed rich text without rebuilding the authored button scene.
@@ -107,7 +111,8 @@ func reset_visuals() -> void:
 		material.set("shader_parameter/glow", 0.0)
 	if text_label:
 		text_label.modulate = _original_label_modulate
-	modulate.a = 0.46 if disabled else 1.0
+	_last_modulate_alpha = 0.46 if disabled else 1.0
+	modulate.a = _last_modulate_alpha
 
 
 # Plays a short centered confirmation trace independent of pointer position.

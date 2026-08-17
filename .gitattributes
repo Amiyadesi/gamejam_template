@@ -1,2 +1,6 @@
 # Normalize EOL for all files that Git considers text files.
 * text=auto eol=lf
+
+# Preserve bundled upstream formatting without failing repository diff checks.
+addons/project-time-tracker/** -whitespace
+demo/** -whitespace

@@ -139,10 +139,12 @@ static func get_files_with_errors() -> Array[Dictionary]:
 static func queue_updating_dependencies(of_path: String) -> void:
 	if _update_dependency_paths.has(of_path): return
 
-	_update_dependency_timer.stop()
+	if is_instance_valid(_update_dependency_timer):
+		_update_dependency_timer.stop()
 	if not _update_dependency_paths.has(of_path):
 		_update_dependency_paths.append(of_path)
-	_update_dependency_timer.start(0.5)
+	if is_instance_valid(_update_dependency_timer):
+		_update_dependency_timer.start(0.5)
 
 
 ## Update any references to a file path that has moved
@@ -189,8 +191,10 @@ static func _get_dialogue_files_in_filesystem(path: String = "res://") -> Packed
 #region Signals
 
 
+# Refreshes queued dependencies even if editor reloads cleared the timer.
 static func _on_dependency_timer_timeout() -> void:
-	_update_dependency_timer.stop()
+	if is_instance_valid(_update_dependency_timer):
+		_update_dependency_timer.stop()
 	var import_regex: RegEx = RegEx.create_from_string("import \"(?<path>.*?)\"")
 	var file: FileAccess
 	var found_imports: Array[RegExMatch]

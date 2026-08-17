@@ -86,6 +86,7 @@ func _ready() -> void:
 	_wire_modules()
 	_apply_configuration()
 	_connect_ui()
+	set_process(false)
 	hide()
 	_balloon_control.hide()
 	_responses_menu.hide()
@@ -115,6 +116,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if will_block_other_input and get_current_line() != null:
 		get_viewport().set_input_as_handled()
 
+# Starts dialogue and enables status updates only for the active run.
 func start(with_dialogue_resource: DialogueResource = null, title: String = "", extra_states: Array = []) -> void:
 	if with_dialogue_resource != null:
 		dialogue_resource = with_dialogue_resource
@@ -124,6 +126,7 @@ func start(with_dialogue_resource: DialogueResource = null, title: String = "", 
 		push_error("ModularBalloon: dialogue_resource is required")
 		return
 	_apply_configuration()
+	set_process(true)
 	show()
 	super.start(dialogue_resource, start_from_title, extra_states)
 
@@ -300,7 +303,9 @@ func _on_dialogue_line_changed(line: DialogueLine) -> void:
 	_dialogue_label.type_out()
 	_show_responses_for_line(line)
 
+# Stops per-frame status updates when the dialogue lifecycle finishes.
 func _on_dialogue_ended() -> void:
+	set_process(false)
 	_responses_menu.hide()
 	_progress_indicator.hide()
 	_sync_toolbar()
