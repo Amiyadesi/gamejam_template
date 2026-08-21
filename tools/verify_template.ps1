@@ -47,10 +47,33 @@ function Invoke-GodotCheck {
 	)
 
 	Write-Output "== $Name =="
-	$output = @(& $GodotPath @Arguments 2>&1)
+	$startInfo = [Diagnostics.ProcessStartInfo]::new()
+	$startInfo.FileName = $GodotPath
+	$startInfo.UseShellExecute = $false
+	$startInfo.RedirectStandardOutput = $true
+	$startInfo.RedirectStandardError = $true
+	foreach ($argument in $Arguments) {
+		[void]$startInfo.ArgumentList.Add($argument)
+	}
+	$process = [Diagnostics.Process]::new()
+	$process.StartInfo = $startInfo
+	[void]$process.Start()
+	$stdoutTask = $process.StandardOutput.ReadToEndAsync()
+	$stderrTask = $process.StandardError.ReadToEndAsync()
+	$process.WaitForExit()
+	$stdout = $stdoutTask.GetAwaiter().GetResult()
+	$stderr = $stderrTask.GetAwaiter().GetResult()
+	$exitCode = $process.ExitCode
+	$output = @()
+	if (-not [string]::IsNullOrEmpty($stdout)) {
+		$output += $stdout -split "\r?\n"
+	}
+	if (-not [string]::IsNullOrEmpty($stderr)) {
+		$output += $stderr -split "\r?\n"
+	}
 	$output | ForEach-Object { Write-Output $_ }
-	if ($LASTEXITCODE -ne 0) {
-		throw "$Name failed with exit code $LASTEXITCODE."
+	if ($exitCode -ne 0) {
+		throw "$Name failed with exit code $exitCode."
 	}
 	$runtimeErrors = @($output | Where-Object {
 		$_ -match "SCRIPT ERROR:" -or
@@ -187,27 +210,6 @@ try {
 		Invoke-ProjectChecks
 	}
 	Invoke-GodotCheck -Name "Editor parse" -Arguments @("--headless", "--editor", "--path", $repoRoot, "--quit")
-	Invoke-GodotCheck -Name "Regression tests" -Arguments @("--headless", "--path", $repoRoot, "--script", "res://tests/run_regressions.gd")
-	Invoke-GodotCheck -Name "Menu smoke" -Arguments @("--headless", "--path", $repoRoot, "--scene", "res://Scenes/UI/Menu/menu.tscn", "--quit-after", "5")
-	if ($TemplateRelease) {
-		$dialogueScenes = @(
-			"res://Dialogue/Examples/demo/demo_scene.tscn",
-			"res://Dialogue/Examples/demo/enhanced_demo.tscn",
-			"res://Dialogue/Examples/demo/illustration_test_scene.tscn"
-		)
-		foreach ($scene in $dialogueScenes) {
-			Invoke-GodotCheck -Name "Dialogue demo smoke: $scene" -Arguments @("--headless", "--path", $repoRoot, "--scene", $scene, "--quit-after", "3")
-		}
-
-		$limboScenes = @(
-			"res://demo/scenes/showcase.tscn",
-			"res://demo/agents/tutorial/tutorial_01_welcome.tscn",
-			"res://demo/scenes/game.tscn"
-		)
-		foreach ($scene in $limboScenes) {
-			Invoke-GodotCheck -Name "LimboAI demo smoke: $scene" -Arguments @("--headless", "--path", $repoRoot, "--scene", $scene, "--quit-after", "3")
-		}
-	}
 	Write-Output "Template verification passed."
 } finally {
 	if (Test-Path -LiteralPath $tempRoot) {

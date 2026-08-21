@@ -57,7 +57,7 @@ Third-party plugins remain under `addons/`. Bundled upstream license files remai
 
 | Plugin | Version | Default | Purpose | Upgrade source |
 | --- | --- | --- | --- | --- |
-| Dialogue Manager | 4.0.2 | Enabled | Dialogue resources, runtime parsing, balloon integration | [v4.0.2](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v4.0.2) |
+| Dialogue Manager | 4.0.3 | Enabled | Dialogue resources, runtime parsing, balloon integration | [v4.0.3](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v4.0.3) |
 | Enhanced Save System | 2.0.0 | Enabled | Slot/global modules, settings, input persistence | Bundled project version |
 | Richer Text Label | 1.14 | Enabled | Rich text effects and project font picker | [v1.14](https://github.com/chairfull/GodotRichTextLabel2/releases/tag/v1.14) |
 | SceneManager | 2.0 | Enabled | Scene changes, fades, modal transitions | [Upstream](https://github.com/m-canton/godot-scene-manager) |
@@ -106,7 +106,7 @@ The authored viewport is `1920×1080` with `Stretch Aspect = Keep`. Desktop wind
 
 The Web restrictions are intentional: browser fullscreen requires user activation, and browser/window ownership makes desktop resolution and VSync controls misleading.
 
-The default keybinding list contains `left`, `right`, `up`, `down`, `attack`, `sprint`, and `pause`. The reset command on the keybinding page changes bindings only; the general reset command changes display, sound, and accessibility settings only.
+The default keybinding list contains `left`, `right`, `up`, `down`, `attack`, `sprint`, and `pause`. Movement and attack controller defaults use `device=-1`, so any connected gamepad can drive them. Versioned binding saves restore newly added default device families when loading legacy data without overwriting the user's existing keyboard or controller choice. The reset command on the keybinding page changes bindings only; the general reset command changes display, sound, and accessibility settings only.
 
 ## Audio, Feedback, And Transitions
 
@@ -186,7 +186,7 @@ Run the complete local verification with one command:
 pwsh ./tools/verify_template.ps1
 ```
 
-Before tagging this template repository, include bundled demo smoke tests and template-specific release checks:
+Before tagging this template repository, include template-specific release checks:
 
 ```powershell
 pwsh ./tools/verify_template.ps1 -TemplateRelease
@@ -242,7 +242,7 @@ This template deliberately patches four bundled addons:
 
 - **Enhanced Save System 2.0.0:** complete keyboard, mouse, and joypad event serialization; legacy wildcard-device fallback; stable in-place rebinding; and exact, device-aware conflict detection.
 - **SceneManager 2.0:** modal backdrops close from their current open progress, so closing during the opening animation neither jumps to fully open nor uses the wrong duration.
-- **Dialogue Manager 4.0.2:** fresh headless imports fall back to Godot's default code font size until `EditorSettings` creates its persisted key.
+- **Dialogue Manager 4.0.3:** fresh headless imports fall back to Godot's default code font size until `EditorSettings` creates its persisted key.
 - **SoundManager 2.6.2:** existing autoloads are preserved; ambient playback keeps authored bus detection and per-stream target volume; pooled players safely prune invalid references.
 
 Replacing any patched addon directory during an upgrade will remove these changes. Reapply the behavior or port the changes before accepting an upstream replacement. Project-owned dialogue and save modules remain outside the addon directories.

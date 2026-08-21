@@ -25,6 +25,8 @@ static var instance: KeybindingModule
 
 ## 跳过这些前缀的内置动作（避免覆盖 Godot UI 系统按键）
 const SKIP_PREFIXES := ["ui_"]
+const DATA_VERSION := 2
+const ACTIONS_KEY := "actions"
 
 ## 默认绑定快照（首次加载时从 InputMap 读取，用于 reset_to_defaults）
 ## action_name → Array[Dictionary]（已序列化）
@@ -59,19 +61,32 @@ func collect_data() -> Dictionary:
 			if not d.is_empty():
 				events_data.append(d)
 		out[action] = events_data
-	return out
+	return {
+		"version": DATA_VERSION,
+		ACTIONS_KEY: out,
+	}
 
 ## 将加载到的绑定应用到 InputMap
 func apply_data(data: Dictionary) -> void:
-	for action in data:
+	var legacy_data := not data.has(ACTIONS_KEY)
+	var actions_data: Dictionary = data
+	if not legacy_data:
+		var stored_actions: Variant = data.get(ACTIONS_KEY, {})
+		if not (stored_actions is Dictionary):
+			push_error("KeybindingModule: saved actions payload must be a Dictionary")
+			return
+		actions_data = stored_actions
+	for action in actions_data:
 		if not InputMap.has_action(action):
 			continue
 		InputMap.action_erase_events(action)
-		var events_data: Array = data[action] as Array
+		var events_data: Array = actions_data[action] as Array
 		for ev_dict in events_data:
 			var ev := ResourceSerializer.deserialize_event(ev_dict)
 			if ev:
 				InputMap.action_add_event(action, ev)
+		if legacy_data:
+			_restore_missing_default_event_families(action)
 	bindings_changed.emit()
 
 # Returns the project-default binding snapshot captured before save data loads.
@@ -232,6 +247,36 @@ func _replace_action_events(action: String, events: Array) -> void:
 	InputMap.action_erase_events(action)
 	for event in events:
 		InputMap.action_add_event(action, event)
+
+
+# Migrates legacy saves by adding only default input-device families they never stored.
+func _restore_missing_default_event_families(action: StringName) -> void:
+	var default_actions: Dictionary = _defaults.get(ACTIONS_KEY, {})
+	var serialized_defaults: Array = default_actions.get(action, [])
+	if serialized_defaults.is_empty():
+		return
+	var existing_families: Dictionary[StringName, bool] = {}
+	for event in InputMap.action_get_events(action):
+		existing_families[_event_family(event)] = true
+	for event_data in serialized_defaults:
+		var default_event := ResourceSerializer.deserialize_event(event_data)
+		if default_event == null:
+			continue
+		if not existing_families.has(_event_family(default_event)):
+			InputMap.action_add_event(action, default_event)
+
+
+# Groups equivalent binding slots without treating every key as a default to restore.
+func _event_family(event: InputEvent) -> StringName:
+	if event is InputEventKey:
+		return &"key"
+	if event is InputEventMouseButton:
+		return &"mouse"
+	if event is InputEventJoypadButton:
+		return &"joy_button"
+	if event is InputEventJoypadMotion:
+		return &"joy_motion"
+	return StringName(event.get_class())
 
 
 # Emits the single public change signal after successful mutations.

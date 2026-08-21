@@ -30,6 +30,10 @@ mono_crash.*.json
 .env
 .env.*
 !.env.example
+.agents/
+__pycache__/
+*.py[cod]
+*.TMP
 
 # Disabled Project Time Tracker local statistics
 project_time_traker.json

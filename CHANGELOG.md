@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased - 2026-08-21
+
+### Changed
+
+- Upgraded Dialogue Manager from 4.0.2 to 4.0.3 for Godot 4.7, retaining the headless editor font fallback.
+- Versioned keybinding saves now preserve new project-default device families when loading legacy binding data; movement and attack ship with wildcard `device=-1` gamepad defaults.
+- Template verification now performs static release checks plus editor parse only; scene smoke and regression invocations were removed.
+
+### Fixed
+
+- Godot verification now captures the child process exit code directly instead of relying on PowerShell's shared `$LASTEXITCODE`.
+
 ## 0.1.0-beta.2 - 2026-08-17
 
 ### Changed
