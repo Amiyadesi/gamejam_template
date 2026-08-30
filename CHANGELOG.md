@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased - 2026-08-31
+
+### Added
+
+- Deletable Echo sandbox under `Scenes/Examples/` that plants a saved trace and reloads the last position.
+- Packaging notes: `docs/why-this-template.md`, `docs/itch-listing.md`, `docs/packaging-checklist.md`, and `ATTRIBUTION.md`.
+
+### Changed
+
+- README now states the memory-first pitch and points at the sandbox without making it the default start scene.
+
 ## Unreleased - 2026-08-21
 
 ### Changed
@@ -47,6 +58,4 @@
 ### Known Limitations
 
 - The template intentionally has no gameplay entry until `Menu.start_scene_path` is authored.
-- Dialogue Manager remains on patched 3.10.4 because 4.0.2 fails a clean Godot 4.7.1 editor parse.
-- SoundManager remains on patched 2.6.1 because 2.6.2 changes ambient target-volume fade behavior.
 - Bundled LimboAI multi-platform binaries increase clone size; copied games can remove `addons/limboai` and `demo` when unused.
