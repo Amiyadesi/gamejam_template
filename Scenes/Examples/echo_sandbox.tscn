@@ -1,0 +1,59 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scenes/Examples/echo_sandbox.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Gameplay/gameplay_ui_shell.tscn" id="2_shell"]
+
+[sub_resource type="RectangleShape2D" id="ActorShape"]
+size = Vector2(28, 28)
+
+[node name="EchoSandbox" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.07, 0.08, 0.1, 1)
+mouse_filter = 2
+
+[node name="Ghost" type="Node2D" parent="."]
+unique_name_in_owner = true
+visible = false
+
+[node name="Body" type="ColorRect" parent="Ghost"]
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(0.45, 0.72, 0.86, 0.35)
+mouse_filter = 2
+
+[node name="Actor" type="CharacterBody2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(960, 540)
+
+[node name="Body" type="ColorRect" parent="Actor"]
+offset_left = -14.0
+offset_top = -14.0
+offset_right = 14.0
+offset_bottom = 14.0
+color = Color(0.93, 0.86, 0.55, 1)
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Actor"]
+shape = SubResource("ActorShape")
+
+[node name="Hint" type="Label" parent="."]
+offset_left = 48.0
+offset_top = 40.0
+offset_right = 1600.0
+offset_bottom = 88.0
+text = "Echo sandbox · move with the template actions · attack plants a remembered trace · Esc pauses"
+
+[node name="Status" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = 48.0
+offset_top = 92.0
+offset_right = 1600.0
+offset_bottom = 140.0
+
+[node name="GameplayUiShell" parent="." instance=ExtResource("2_shell")]
